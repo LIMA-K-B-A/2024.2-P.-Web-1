@@ -32,41 +32,6 @@ Este sistema visa resolver o problema de gerenciamento de dados médicos, facili
 ### 1️⃣ **Clone o Repositório**
 Primeiro, clone o repositório para o seu computador:
 ```bash
-Entendido! Aqui está o **README.md** formatado em Markdown, com a seção **"Instalação e Execução"** e tudo ajustado no estilo que você deseja, pronto para copiar e colar:
-
-```markdown
-# 🏥 **Gerenciamento de Consultas Médicas com FastAPI** 🏥
-
-Este projeto implementa uma **API RESTful** para o **gerenciamento de consultas médicas**, permitindo o cadastro de **pacientes**, **médicos** e **consultas**, com operações completas de **CRUD** (Create, Read, Update, Delete) utilizando o framework **FastAPI**.
-
-A API é desenvolvida para gerenciar informações de **pacientes**, **médicos** e **consultas** de maneira simples e eficiente, facilitando o controle dessas informações em uma aplicação de saúde.
-
----
-
-## 📋 **Problema Resolvido**
-
-Este sistema visa resolver o problema de gerenciamento de dados médicos, facilitando o controle de pacientes, médicos e consultas em um ambiente médico. Ele oferece uma forma simples de registrar, atualizar e consultar informações essenciais sobre pacientes, médicos e consultas médicas.
-
----
-
-## 🌟 **Principais Funcionalidades**
-- **Cadastro de pacientes**: Adicionar, listar, atualizar e remover pacientes.
-- **Cadastro de médicos**: Adicionar, listar, atualizar e remover médicos.
-- **Gestão de consultas médicas**: Agendar, listar, atualizar e cancelar consultas.
-
----
-
-## 🚀 **Instalação e Execução**
-
-### **1️⃣ Clone o Repositório**
-
-Primeiro, clone o repositório para o seu computador:
-```bash
-git clone https://github.com/seu-usuario/gerenciamento-consultas-medicas.git
-cd gerenciamento-consultas-medicas
-```
-
----
 
 ### **2️⃣ Crie e Ative o Ambiente Virtual**
 
