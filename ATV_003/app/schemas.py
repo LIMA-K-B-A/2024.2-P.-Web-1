@@ -1,63 +1,44 @@
-# schemas.py
 from pydantic import BaseModel
-from typing import List, Optional
-from datetime import datetime
+from typing import Optional
 
-class MedicoBase(BaseModel):
-    nome: str
-    especializacao: str
-    crm: str
+# Esquema Paciente
+class PatientBase(BaseModel):
+    name: str
+    age: int
+    address: str
 
-class MedicoCreate(MedicoBase):
+class PatientCreate(PatientBase):
     pass
 
-class MedicoUpdate(MedicoBase):
-    nome: Optional[str] = None
-    especializacao: Optional[str] = None
-    crm: Optional[str] = None
-
-class Medico(MedicoBase):
+class PatientResponse(PatientBase):
     id: int
-
     class Config:
         orm_mode = True
 
-class PacienteBase(BaseModel):
-    nome: str
-    idade: int
-    cpf: str
-    telefone: str
+# Esquema Médico
+class DoctorBase(BaseModel):
+    name: str
+    specialty: str
 
-class PacienteCreate(PacienteBase):
+class DoctorCreate(DoctorBase):
     pass
 
-class PacienteUpdate(PacienteBase):
-    nome: Optional[str] = None
-    idade: Optional[int] = None
-    cpf: Optional[str] = None
-    telefone: Optional[str] = None
-
-class Paciente(PacienteBase):
+class DoctorResponse(DoctorBase):
     id: int
-
     class Config:
         orm_mode = True
 
-class ConsultaBase(BaseModel):
-    paciente_id: int
-    medico_id: int
-    data_consulta: datetime
+# Esquema Consulta
+class AppointmentBase(BaseModel):
+    patient_id: int
+    doctor_id: int
+    date: str
+    description: Optional[str]
 
-class ConsultaCreate(ConsultaBase):
+class AppointmentCreate(AppointmentBase):
     pass
 
-class ConsultaUpdate(ConsultaBase):
-    paciente_id: Optional[int] = None
-    medico_id: Optional[int] = None
-    data_consulta: Optional[datetime] = None
-
-class Consulta(ConsultaBase):
+class AppointmentResponse(AppointmentBase):
     id: int
-
     class Config:
         orm_mode = True

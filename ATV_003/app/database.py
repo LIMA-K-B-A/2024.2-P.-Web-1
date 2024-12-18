@@ -1,23 +1,14 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
+import os
+from dotenv import load_dotenv
 
-# URL de conexão com o banco de dados (mude conforme sua necessidade)
-DATABASE_URL = "sqlite:///./test.db"  # Exemplo usando SQLite, mas você pode usar outros bancos (PostgreSQL, MySQL, etc.)
+# Carregar variáveis de ambiente
+load_dotenv()
 
-# Criando o engine de conexão
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})  # Para SQLite
+# Configuração do banco de dados
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Criando a base de dados
-Base = declarative_base()
-
-# Criando o session maker
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Função para obter a sessão
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+Base = declarative_base()
