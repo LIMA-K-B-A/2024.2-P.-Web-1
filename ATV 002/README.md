@@ -32,145 +32,121 @@ Este sistema visa resolver o problema de gerenciamento de dados médicos, facili
 ### 1️⃣ **Clone o Repositório**
 Primeiro, clone o repositório para o seu computador:
 ```bash
-git clone https://github.com/seu-usuario/gerenciamento-consultas-medicas.git
-cd gerenciamento-consultas-medicas
 
-2️⃣ Crie e Ative o Ambiente Virtual
+### **2️⃣ Crie e Ative o Ambiente Virtual**
 
-É recomendado criar um ambiente virtual para instalar as dependências:
-
+É altamente recomendado criar um ambiente virtual para instalar as dependências:
+```bash
 python3 -m venv venv
 source venv/bin/activate  # Para Linux/MacOS
 venv\Scripts\activate     # Para Windows
+```
 
-3️⃣ Instale as Dependências
+---
+
+### **3️⃣ Instale as Dependências**
 
 Com o ambiente virtual ativado, instale as dependências:
-
+```bash
 pip install -r requirements.txt
+```
 
-4️⃣ Execute a API
+---
 
-Agora, inicie o servidor com o Uvicorn:
+### **4️⃣ Execute a API**
 
+Agora, inicie o servidor com o **Uvicorn**:
+```bash
 uvicorn main:app --reload
+```
 
-A API estará disponível em: http://127.0.0.1:8000
-5️⃣ Documentação Interativa
+A API estará disponível em: **[http://127.0.0.1:8000](http://127.0.0.1:8000)**.
 
-O FastAPI já fornece uma documentação interativa com a Swagger:
+---
 
-    Documentação de uso: http://127.0.0.1:8000/docs
-    Esquema OpenAPI: http://127.0.0.1:8000/openapi.json
+## 📑 **Documentação no Postman**
 
-🧑‍💻 Testando a API no Postman
-Passo 1: Criação da Coleção no Postman
+A coleção do **Postman** contendo todas as rotas da API está disponível no repositório. Para importar a coleção no Postman:
 
-    Abra o Postman e crie uma nova Coleção chamada "Gerenciamento de Consultas Médicas".
-    Adicione as rotas de Pacientes, Médicos e Consultas à coleção, com os métodos GET, POST, PUT e DELETE.
+1. Baixe o arquivo de coleção do **Postman**.
+2. No **Postman**, clique em **"Import"** no canto superior esquerdo.
+3. Selecione **"Upload Files"** e escolha o arquivo **`gerenciamento-consultas-medicas.postman_collection.json`**.
+4. Agora você terá acesso a todas as rotas da API para testar e interagir diretamente com a documentação interativa.
 
-Passo 2: Exemplos de Requisição
-1. Pacientes
+---
 
-    GET /patients: Retorna todos os pacientes.
-        Método: GET
-        URL: http://127.0.0.1:8000/patients
+## 🔨 **Exemplos de Rotas**
 
-    POST /patients: Adiciona um novo paciente.
-        Método: POST
-        Corpo (JSON):
+### **Pacientes**
+- **GET `/patients`**: Retorna todos os pacientes.
+  ```bash
+  curl -X GET http://127.0.0.1:8000/patients
+  ```
 
-    {
-      "name": "João Silva",
-      "age": 30,
-      "condition": "Hipertensão"
-    }
+- **POST `/patients`**: Adiciona um novo paciente.
+  Corpo (JSON):
+  ```json
+  {
+    "name": "João Silva",
+    "age": 30,
+    "condition": "Hipertensão"
+  }
+  ```
 
-PUT /patients/{patient_id}: Atualiza os dados de um paciente.
+- **PUT `/patients/{id}`**: Atualiza um paciente existente.
 
-    Método: PUT
-    URL: http://127.0.0.1:8000/patients/1
-    Corpo (JSON):
+- **DELETE `/patients/{id}`**: Remove um paciente.
 
-        {
-          "name": "João Silva",
-          "age": 31,
-          "condition": "Hipertensão moderada"
-        }
+---
 
-    DELETE /patients/{patient_id}: Remove um paciente.
-        Método: DELETE
-        URL: http://127.0.0.1:8000/patients/1
+### **Médicos**
+- **GET `/doctors`**: Retorna todos os médicos.
 
-2. Médicos
+- **POST `/doctors`**: Adiciona um novo médico.
+  Corpo (JSON):
+  ```json
+  {
+    "name": "Dr. João",
+    "specialty": "Cardiologia",
+    "years_of_experience": 10
+  }
+  ```
 
-    GET /doctors: Retorna todos os médicos.
-        Método: GET
-        URL: http://127.0.0.1:8000/doctors
+---
 
-    POST /doctors: Adiciona um novo médico.
-        Método: POST
-        Corpo (JSON):
+### **Consultas**
+- **GET `/appointments`**: Retorna todas as consultas agendadas.
 
-    {
-      "name": "Dr. João",
-      "specialty": "Cardiologia",
-      "years_of_experience": 10
-    }
+- **POST `/appointments`**: Agenda uma nova consulta.
+  Corpo (JSON):
+  ```json
+  {
+    "patient_id": 1,
+    "doctor_id": 1,
+    "date": "2024-12-10",
+    "time": "10:30"
+  }
+  ```
 
-PUT /doctors/{doctor_id}: Atualiza os dados de um médico.
+---
 
-    Método: PUT
-    URL: http://127.0.0.1:8000/doctors/1
-    Corpo (JSON):
+## 📥 **Como Contribuir**
 
-        {
-          "name": "Dr. João",
-          "specialty": "Cardiologia",
-          "years_of_experience": 12
-        }
+Se você deseja contribuir para o projeto, siga as etapas abaixo:
 
-    DELETE /doctors/{doctor_id}: Remove um médico.
-        Método: DELETE
-        URL: http://127.0.0.1:8000/doctors/1
+1. Faça um **fork** do repositório.
+2. Crie uma nova branch com a sua feature:
+   ```bash
+   git checkout -b minha-feature
+   ```
+3. Faça o commit das suas alterações:
+   ```bash
+   git commit -m "Adiciona nova funcionalidade"
+   ```
+4. Envie para a sua branch remota:
+   ```bash
+   git push origin minha-feature
+   ```
+5. Abra um **Pull Request** no repositório original.
 
-3. Consultas
-
-    GET /appointments: Retorna todas as consultas.
-        Método: GET
-        URL: http://127.0.0.1:8000/appointments
-
-    POST /appointments: Agendar uma nova consulta.
-        Método: POST
-        Corpo (JSON):
-
-    {
-      "patient_id": 1,
-      "doctor_id": 1,
-      "date": "2024-12-10",
-      "time": "10:30"
-    }
-
-PUT /appointments/{appointment_id}: Atualiza uma consulta existente.
-
-    Método: PUT
-    URL: http://127.0.0.1:8000/appointments/1
-    Corpo (JSON):
-
-        {
-          "patient_id": 1,
-          "doctor_id": 1,
-          "date": "2024-12-15",
-          "time": "14:00"
-        }
-
-    DELETE /appointments/{appointment_id}: Remove uma consulta.
-        Método: DELETE
-        URL: http://127.0.0.1:8000/appointments/1
-
-🛠 Tecnologias Utilizadas
-
-    FastAPI: Framework para criar APIs RESTful de forma rápida e eficiente.
-    Uvicorn: Servidor ASGI para rodar a aplicação FastAPI.
-    Pydantic: Para validação de dados de entrada e saída.
-    Postman: Para testar e documentar as rotas da API.
+---
