@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  # Serviço para a aplicação FastAPI
+  app:
+    build: .
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://postgres:12345678@db:5432/consultas_medicas
+    depends_on:
+      - db
+    networks:
+      - backend
+
+  # Serviço para o banco de dados PostgreSQL
+  db:
+    image: postgres:13
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: consultas_medicas
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  backend:
+    driver: bridge
