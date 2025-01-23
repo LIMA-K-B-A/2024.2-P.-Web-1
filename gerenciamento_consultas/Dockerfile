@@ -1,22 +1,14 @@
-FROM python:3.9-slim
+# Imagem base
+FROM python:3.10-slim
 
-# Instalar dependências do sistema para compilar psycopg2
-RUN apt-get update && apt-get install -y libpq-dev
-
-# Definir o diretório de trabalho
+# Definir diretório de trabalho no contêiner
 WORKDIR /app
 
-# Copiar os arquivos de requisitos
-COPY requirements.txt .
-
-# Instalar dependências Python
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copiar o restante do código
+# Copiar os arquivos do projeto para o contêiner
 COPY . .
 
-# Expor a porta
-EXPOSE 8000
+# Instalar as dependências do projeto
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Comando para iniciar a aplicação
+# Comando para rodar o servidor FastAPI
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

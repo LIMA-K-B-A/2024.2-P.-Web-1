@@ -12,6 +12,7 @@ class Patient(Base):
 
     appointments = relationship("Appointment", back_populates="patient")
 
+
 class Doctor(Base):
     __tablename__ = "doctors"
 
@@ -21,6 +22,7 @@ class Doctor(Base):
     years_of_experience = Column(Integer)
 
     appointments = relationship("Appointment", back_populates="doctor")
+
 
 class Appointment(Base):
     __tablename__ = "appointments"

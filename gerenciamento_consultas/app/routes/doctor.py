@@ -1,10 +1,15 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from app.schemas import DoctorCreate, Doctor
 from app.models import Doctor as DoctorModel
 from app.database import SessionLocal
 
 router = APIRouter()
+
+# Configuração do Jinja2 para templates
+templates = Jinja2Templates(directory="templates")
 
 @router.get("/", response_model=list[Doctor])
 def get_doctors():
@@ -13,7 +18,7 @@ def get_doctors():
     db.close()
     return doctors
 
-@router.post("/", response_model=Doctor)
+@router.post("/doctors/add", response_model=Doctor)
 def create_doctor(doctor: DoctorCreate):
     db = SessionLocal()
     db_doctor = DoctorModel(name=doctor.name, specialty=doctor.specialty, years_of_experience=doctor.years_of_experience)

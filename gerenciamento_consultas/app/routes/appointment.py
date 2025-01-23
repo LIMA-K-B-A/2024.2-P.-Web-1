@@ -1,10 +1,15 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from app.schemas import AppointmentCreate, Appointment
 from app.models import Appointment as AppointmentModel
 from app.database import SessionLocal
 
 router = APIRouter()
+
+# Configuração do Jinja2 para templates
+templates = Jinja2Templates(directory="templates")
 
 @router.get("/", response_model=list[Appointment])
 def get_appointments():

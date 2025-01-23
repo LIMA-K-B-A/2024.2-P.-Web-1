@@ -13,7 +13,7 @@ class Patient(PatientBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Modelo Pydantic para Doctor
 class DoctorBase(BaseModel):
@@ -28,7 +28,7 @@ class Doctor(DoctorBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Modelo Pydantic para Appointment
 class AppointmentBase(BaseModel):
@@ -44,4 +44,4 @@ class Appointment(AppointmentBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
