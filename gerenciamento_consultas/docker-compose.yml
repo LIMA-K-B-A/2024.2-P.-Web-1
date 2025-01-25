@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://postgres:12345678@db:5432/consultas_medicas
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+
+  db:
+    image: postgres:14
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: consultas_medicas
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
