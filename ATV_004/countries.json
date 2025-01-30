@@ -1,4 +1,18 @@
 [
+<<<<<<< HEAD
+    {
+        "country_name": "Brazil",
+        "capital": "Brasília",
+        "population": 213000000,
+        "continent": "South America"
+    },
+    {
+        "country_name": "Argentina",
+        "capital": "Buenos Aires",
+        "population": 45380000,
+        "continent": "South America"
+    }
+=======
   {
       "country_name": "Brazil",
       "capital": "Brasília",
@@ -11,4 +25,5 @@
       "population": 45380000,
       "continent": "South America"
   }
+>>>>>>> 26978709576e7a6122774430eb011fcd76d58b19
 ]
