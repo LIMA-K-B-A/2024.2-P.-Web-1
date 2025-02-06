@@ -1,0 +1,31 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Pacientes</h1>
+    <button onclick="window.location.href='/dashboard/patients/add'">Adicionar Paciente</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Idade</th>
+                <th>Telefone</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+            <tr>
+                <td>{{ patient.name }}</td>
+                <td>{{ patient.age }}</td>
+                <td>{{ patient.phone }}</td>
+                <td>
+                    <button onclick="window.location.href='/dashboard/patients/edit/{{ patient.id }}'">Editar</button>
+                    <button onclick="window.location.href='/dashboard/patients/delete/{{ patient.id }}'">Excluir</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

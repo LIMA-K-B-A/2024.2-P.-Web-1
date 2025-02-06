@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <link rel="stylesheet" href="/static/css/dark-theme.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Cadastro</h1>
+        <form method="post" enctype="multipart/form-data">
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <input type="text" name="full_name" placeholder="Nome Completo" required>
+            <input type="file" name="photo" accept="image/*" required>
+            <button type="submit">Cadastrar</button>
+        </form>
+    </div>
+</body>
+</html>

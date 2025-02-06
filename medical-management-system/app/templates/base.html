@@ -1,26 +1,29 @@
 <!-- app/templates/base.html -->
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Sistema de Gestão Médica{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>{% block title %} Medical Management System {% endblock %}</title>
+    <link href="{{ url_for('static', path='css/style.css') }}" rel="stylesheet">
 </head>
-<body class="bg-gray-100">
-
-    <header class="bg-blue-600 text-white p-4">
-        <div class="container mx-auto">
-            <h1 class="text-2xl font-bold">Sistema de Gestão Médica</h1>
-        </div>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+            </ul>
+        </nav>
     </header>
 
-    <div class="container mx-auto p-4">
+    <main>
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
-    <footer class="bg-blue-600 text-white text-center p-4">
-        <p>&copy; 2025 Sistema de Gestão Médica</p>
+    <footer>
+        <p>&copy; 2025 Medical Management System</p>
     </footer>
 </body>
 </html>
