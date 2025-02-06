@@ -1,31 +1,31 @@
 {% extends "base.html" %}
-{% block content %}
 
+{% block content %}
 <div class="card">
-    <h1>Painel do Paciente</h1>
+    <h1>Painel de Consultas</h1>
     <h2>Suas Consultas</h2>
-    <a href="/appointments/book" class="btn btn-success">Nova Consulta</a>
     
     <table>
         <thead>
             <tr>
-                <th>Médico</th>
+                <th>Paciente</th>
                 <th>Data</th>
                 <th>Status</th>
                 <th>Ações</th>
             </tr>
         </thead>
         <tbody>
-            <!-- Exemplo de dados -->
+            {% for appointment in appointments %}
             <tr>
-                <td>Dra. Maria Souza</td>
-                <td>2024-03-20 14:30</td>
-                <td>Confirmada</td>
+                <td>{{ appointment.patient.name }}</td>
+                <td>{{ appointment.appointment_time }}</td>
+                <td>{{ appointment.status }}</td>
                 <td>
-                    <a href="#" class="btn btn-primary">Reagendar</a>
+                    <a href="#" class="btn btn-primary">Editar</a>
                     <a href="#" class="btn btn-danger">Cancelar</a>
                 </td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>

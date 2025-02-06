@@ -17,9 +17,21 @@ class Token(BaseModel):
 class PatientCreate(BaseModel):
     name: str
     age: int
-    condition: str
+    gender: str
+    phone: str
+
+class PatientUpdate(BaseModel):
+    name: str
+    age: int
+    gender: str
+    phone: str
 
 class DoctorCreate(BaseModel):
+    name: str
+    specialty: str
+    years_experience: int
+
+class DoctorUpdate(BaseModel):
     name: str
     specialty: str
     years_experience: int
@@ -29,3 +41,5 @@ class AppointmentCreate(BaseModel):
     patient_id: int
     doctor_id: int
     notes: str
+class AppointmentUpdate(AppointmentCreate):
+    pass
