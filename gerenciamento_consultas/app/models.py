@@ -2,36 +2,31 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 
-class Patient(Base):
-    __tablename__ = "patients"
-
+class User(Base):
+    __tablename__ = 'users'
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+
+class Patient(Base):
+    __tablename__ = 'patients'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
     age = Column(Integer)
-    condition = Column(String)
-
-    appointments = relationship("Appointment", back_populates="patient")
-
+    gender = Column(String)
 
 class Doctor(Base):
-    __tablename__ = "doctors"
-
+    __tablename__ = 'doctors'
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    specialty = Column(String)
-    years_of_experience = Column(Integer)
-
-    appointments = relationship("Appointment", back_populates="doctor")
-
+    name = Column(String)
+    specialization = Column(String)
 
 class Appointment(Base):
-    __tablename__ = "appointments"
-
+    __tablename__ = 'appointments'
     id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"))
-    doctor_id = Column(Integer, ForeignKey("doctors.id"))
     date = Column(String)
-    time = Column(String)
+    patient_id = Column(Integer, ForeignKey('patients.id'))
+    doctor_id = Column(Integer, ForeignKey('doctors.id'))
 
-    patient = relationship("Patient", back_populates="appointments")
-    doctor = relationship("Doctor", back_populates="appointments")
+    patient = relationship('Patient', back_populates="appointments")
+    doctor = relationship('Doctor', back_populates="appointments")

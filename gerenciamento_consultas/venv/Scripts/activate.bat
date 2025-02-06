@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\Brayan\Documents\GitHub\2024.2-P.-Web-1\gerenciamento_consultas\venv
+set VIRTUAL_ENV=C:\Users\Nexus\OneDrive\Documentos\GitHub\2024.2-P.-Web-1\gerenciamento_consultas\venv
 
 if not defined PROMPT set PROMPT=$P$G
 

@@ -1,62 +1,53 @@
-from fastapi import APIRouter, HTTPException, Request, Depends
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.schemas import AppointmentCreate, Appointment
-from app.models import Appointment as AppointmentModel
-from app.database import SessionLocal
+from app import models, schemas, database
 
 router = APIRouter()
 
-# Configuração do Jinja2 para templates
-templates = Jinja2Templates(directory="templates")
+# Função para obter a sessão do banco de dados
+def get_db():
+    db = database.SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-@router.get("/", response_model=list[Appointment])
-def get_appointments():
-    db = SessionLocal()
-    appointments = db.query(AppointmentModel).all()
-    db.close()
-    return appointments
-
-@router.post("/", response_model=Appointment)
-def create_appointment(appointment: AppointmentCreate):
-    db = SessionLocal()
-    db_appointment = AppointmentModel(
-        patient_id=appointment.patient_id,
-        doctor_id=appointment.doctor_id,
-        date=appointment.date,
-        time=appointment.time
-    )
+@router.post("/appointments/", response_model=schemas.Appointment)
+def create_appointment(appointment: schemas.AppointmentCreate, db: Session = Depends(get_db)):
+    db_appointment = models.Appointment(**appointment.dict())
     db.add(db_appointment)
     db.commit()
     db.refresh(db_appointment)
-    db.close()
     return db_appointment
 
-@router.put("/{id}", response_model=Appointment)
-def update_appointment(id: int, appointment: AppointmentCreate):
-    db = SessionLocal()
-    db_appointment = db.query(AppointmentModel).filter(AppointmentModel.id == id).first()
+@router.get("/appointments/", response_model=list[schemas.Appointment])
+def get_appointments(db: Session = Depends(get_db)):
+    return db.query(models.Appointment).all()
+
+@router.get("/appointments/{appointment_id}", response_model=schemas.Appointment)
+def get_appointment(appointment_id: int, db: Session = Depends(get_db)):
+    db_appointment = db.query(models.Appointment).filter(models.Appointment.id == appointment_id).first()
     if not db_appointment:
-        db.close()
-        raise HTTPException(status_code=404, detail="Consulta não encontrada")
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    return db_appointment
+
+@router.put("/appointments/{appointment_id}", response_model=schemas.Appointment)
+def update_appointment(appointment_id: int, appointment: schemas.AppointmentCreate, db: Session = Depends(get_db)):
+    db_appointment = db.query(models.Appointment).filter(models.Appointment.id == appointment_id).first()
+    if not db_appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    db_appointment.date = appointment.date
     db_appointment.patient_id = appointment.patient_id
     db_appointment.doctor_id = appointment.doctor_id
-    db_appointment.date = appointment.date
-    db_appointment.time = appointment.time
     db.commit()
     db.refresh(db_appointment)
-    db.close()
     return db_appointment
 
-@router.delete("/{id}")
-def delete_appointment(id: int):
-    db = SessionLocal()
-    db_appointment = db.query(AppointmentModel).filter(AppointmentModel.id == id).first()
+@router.delete("/appointments/{appointment_id}", status_code=204)
+def delete_appointment(appointment_id: int, db: Session = Depends(get_db)):
+    db_appointment = db.query(models.Appointment).filter(models.Appointment.id == appointment_id).first()
     if not db_appointment:
-        db.close()
-        raise HTTPException(status_code=404, detail="Consulta não encontrada")
+        raise HTTPException(status_code=404, detail="Appointment not found")
     db.delete(db_appointment)
     db.commit()
-    db.close()
-    return {"message": "Consulta deletada com sucesso"}
+    return {"message": "Appointment deleted successfully"}

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient List</title>
+</head>
+<body>
+    <h1>Patient List</h1>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Date of Birth</th>
+            <th>Actions</th>
+        </tr>
+        {% for patient in patients %}
+        <tr>
+            <td>{{ patient.name }}</td>
+            <td>{{ patient.dob }}</td>
+            <td>
+                <a href="/patients/{{ patient.id }}">View</a> | 
+                <a href="/patients/{{ patient.id }}/edit">Edit</a> | 
+                <a href="/patients/{{ patient.id }}/delete">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="/patients/create">Create New Patient</a>
+</body>
+</html>

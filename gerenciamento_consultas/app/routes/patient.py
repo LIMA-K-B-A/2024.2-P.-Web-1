@@ -1,55 +1,55 @@
-# app/routes/patient.py
-from fastapi import APIRouter, HTTPException, Request, Depends
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.schemas import PatientCreate, Patient
-from app.models import Patient as PatientModel  # Importação direta do modelo
-from app.database import SessionLocal
+from app import models, schemas, database
 
 router = APIRouter()
 
-# Configuração do Jinja2 para templates
-templates = Jinja2Templates(directory="templates")
-
-# Função para gerenciar sessões do banco
+# Função para obter a sessão do banco de dados
 def get_db():
-    db = SessionLocal()
+    db = database.SessionLocal()
     try:
         yield db
     finally:
         db.close()
 
-@router.get("/", response_class=HTMLResponse)
-def get_patients(request: Request, db: Session = Depends(get_db)):
-    patients = db.query(PatientModel).all()
-    return templates.TemplateResponse("patients.html", {"request": request, "patients": patients})
-
-@router.post("/patients/add", response_model=Patient)
-def create_patient(patient: PatientCreate, db: Session = Depends(get_db)):
-    db_patient = PatientModel(name=patient.name, age=patient.age, condition=patient.condition)
+@router.post("/patients/", response_model=schemas.Patient)
+def create_patient(patient: schemas.PatientCreate, db: Session = Depends(get_db)):
+    db_patient = db.query(models.Patient).filter(models.Patient.name == patient.name).first()
+    if db_patient:
+        raise HTTPException(status_code=400, detail="Patient already registered")
+    db_patient = models.Patient(**patient.dict())
     db.add(db_patient)
     db.commit()
     db.refresh(db_patient)
     return db_patient
 
-@router.put("/{id}", response_model=Patient)
-def update_patient(id: int, patient: PatientCreate, db: Session = Depends(get_db)):
-    db_patient = db.query(PatientModel).filter(PatientModel.id == id).first()
+@router.get("/patients/", response_model=list[schemas.Patient])
+def get_patients(db: Session = Depends(get_db)):
+    return db.query(models.Patient).all()
+
+@router.get("/patients/{patient_id}", response_model=schemas.Patient)
+def get_patient(patient_id: int, db: Session = Depends(get_db)):
+    db_patient = db.query(models.Patient).filter(models.Patient.id == patient_id).first()
     if not db_patient:
-        raise HTTPException(status_code=404, detail="Paciente não encontrado")
+        raise HTTPException(status_code=404, detail="Patient not found")
+    return db_patient
+
+@router.put("/patients/{patient_id}", response_model=schemas.Patient)
+def update_patient(patient_id: int, patient: schemas.PatientCreate, db: Session = Depends(get_db)):
+    db_patient = db.query(models.Patient).filter(models.Patient.id == patient_id).first()
+    if not db_patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
     db_patient.name = patient.name
-    db_patient.age = patient.age
-    db_patient.condition = patient.condition
+    db_patient.dob = patient.dob
     db.commit()
     db.refresh(db_patient)
     return db_patient
 
-@router.delete("/{id}")
-def delete_patient(id: int, db: Session = Depends(get_db)):
-    db_patient = db.query(PatientModel).filter(PatientModel.id == id).first()
+@router.delete("/patients/{patient_id}", status_code=204)
+def delete_patient(patient_id: int, db: Session = Depends(get_db)):
+    db_patient = db.query(models.Patient).filter(models.Patient.id == patient_id).first()
     if not db_patient:
-        raise HTTPException(status_code=404, detail="Paciente não encontrado")
+        raise HTTPException(status_code=404, detail="Patient not found")
     db.delete(db_patient)
     db.commit()
-    return {"message": "Paciente deletado com sucesso"}
+    return {"message": "Patient deleted successfully"}

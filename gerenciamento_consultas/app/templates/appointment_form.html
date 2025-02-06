@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Form</title>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <form method="post" action="{{ action_url }}">
+        <label for="date">Date:</label>
+        <input type="datetime-local" id="date" name="date" value="{{ appointment.date if appointment else '' }}" required>
+        <br>
+
+        <label for="patient_id">Patient:</label>
+        <select id="patient_id" name="patient_id" required>
+            {% for patient in patients %}
+            <option value="{{ patient.id }}" {% if patient.id == appointment.patient_id %}selected{% endif %}>
+                {{ patient.name }}
+            </option>
+            {% endfor %}
+        </select>
+        <br>
+
+        <label for="doctor_id">Doctor:</label>
+        <select id="doctor_id" name="doctor_id" required>
+            {% for doctor in doctors %}
+            <option value="{{ doctor.id }}" {% if doctor.id == appointment.doctor_id %}selected{% endif %}>
+                {{ doctor.name }} - {{ doctor.specialty }}
+            </option>
+            {% endfor %}
+        </select>
+        <br>
+
+        <button type="submit">Submit</button>
+    </form>
+    <a href="/appointments">Back to Appointment List</a>
+</body>
+</html>

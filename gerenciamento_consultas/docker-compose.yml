@@ -1,27 +1,39 @@
-services:
-  app:
-    build: .
-    container_name: fastapi_app
-    ports:
-      - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql+psycopg2://postgres:12345678@db:5432/consultas_medicas
-    depends_on:
-      - db
-    volumes:
-      - .:/app
+version: '3.8'
 
+services:
   db:
-    image: postgres:14
-    container_name: postgres_db
+    image: postgres:latest
+    container_name: consultas_medicas
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 12345678
+      POSTGRES_PASSWORD: 1301
       POSTGRES_DB: consultas_medicas
+    networks:
+      - medical_network
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    healthcheck:  # Health check para garantir que o PostgreSQL está pronto
+      test: ["CMD-SHELL", "pg_isready -U postgres -d consultas_medicas"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-volumes:
-  postgres_data:
+  web:
+    build: .
+    container_name: medical_app
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    volumes:
+      - .:/app
+    networks:
+      - medical_network
+    ports:
+      - "8000:8000"
+    depends_on:  # Define a dependência com base no health check
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:1301@db:5432/consultas_medicas
+
+networks:
+  medical_network:
+    driver: bridge
