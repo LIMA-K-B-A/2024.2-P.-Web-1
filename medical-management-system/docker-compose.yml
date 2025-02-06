@@ -6,8 +6,9 @@ services:
     container_name: medical_db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1301
+      POSTGRES_PASSWORD: 12345678
       POSTGRES_DB: medical_db
+      LC_ALL: C.UTF-8
     networks:
       - medical_network
     ports:
@@ -32,7 +33,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://postgres:1301@db:5432/medical_db
+      DATABASE_URL: postgresql://postgres:12345678@db:5432/medical_db
 
 networks:
   medical_network:

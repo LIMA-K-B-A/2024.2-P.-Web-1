@@ -1,52 +1,38 @@
-# app/routes/patient.py
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
-from app.database import get_db
-from app import models, schemas  # Corrigir importações para usar os modelos corretos
-from datetime import datetime
-from fastapi.templating import Jinja2Templates
-
-templates = Jinja2Templates(directory="app/templates")
+from ..database import get_db
+from ..models import Patient, User
+from ..schemas import PatientCreate
+from ..routes.auth import get_current_user
 
 router = APIRouter()
 
-@router.get("/appointments", response_model=list[schemas.Appointment])
-async def get_appointments(db: Session = Depends(get_db)):
-    appointments = db.query(models.Appointment).all()
-    return appointments
+@router.get("/patients", response_class=HTMLResponse)
+async def list_patients(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role not in ["admin", "doctor"]:
+        raise HTTPException(status_code=403, detail="Acesso negado")
+    
+    patients = db.query(Patient).all()
+    return templates.TemplateResponse(
+        "patients.html",
+        {"request": request, "patients": patients}
+    )
 
-@router.get("/appointments/{appointment_id}", response_model=schemas.Appointment)
-async def get_appointment(appointment_id: int, db: Session = Depends(get_db)):
-    appointment = db.query(models.Appointment).filter(models.Appointment.id == appointment_id).first()
-    if not appointment:
-        raise HTTPException(status_code=404, detail="Appointment not found")
-    return appointment
-
-@router.post("/appointments", response_model=schemas.Appointment)
-async def create_appointment(appointment: schemas.AppointmentCreate, db: Session = Depends(get_db)):
-    db_appointment = models.Appointment(**appointment.dict())  # Certificando que estamos criando corretamente
-    db.add(db_appointment)
+@router.post("/patients")
+async def create_patient(
+    patient: PatientCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Acesso negado")
+    
+    db_patient = Patient(**patient.dict())
+    db.add(db_patient)
     db.commit()
-    db.refresh(db_appointment)
-    return db_appointment
-
-@router.put("/appointments/{appointment_id}", response_model=schemas.Appointment)
-async def update_appointment(appointment_id: int, appointment: schemas.AppointmentCreate, db: Session = Depends(get_db)):
-    db_appointment = db.query(models.Appointment).filter(models.Appointment.id == appointment_id).first()
-    if not db_appointment:
-        raise HTTPException(status_code=404, detail="Appointment not found")
-    for key, value in appointment.dict().items():
-        setattr(db_appointment, key, value)
-    db.commit()
-    db.refresh(db_appointment)
-    return db_appointment
-
-@router.delete("/appointments/{appointment_id}", response_model=schemas.Appointment)
-async def delete_appointment(appointment_id: int, db: Session = Depends(get_db)):
-    db_appointment = db.query(models.Appointment).filter(models.Appointment.id == appointment_id).first()
-    if not db_appointment:
-        raise HTTPException(status_code=404, detail="Appointment not found")
-    db.delete(db_appointment)
-    db.commit()
-    return db_appointment
+    return RedirectResponse(url="/patients", status_code=303)

@@ -1,49 +1,45 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, LargeBinary
 from sqlalchemy.orm import relationship
-from app.database import Base
+from .database import Base
+from datetime import datetime
 
 class User(Base):
-    __tablename__ = 'users'
-
+    __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
-    full_name = Column(String)
-    photo_url = Column(String, nullable=True)
-
-class Doctor(Base):
-    __tablename__ = 'doctors'
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    specialty = Column(String)
-    user_id = Column(Integer, ForeignKey("users.id"))
-
-    user = relationship("User", back_populates="doctor")
-
-User.doctor = relationship("Doctor", back_populates="user")
+    role = Column(String)
+    profile_picture = Column(LargeBinary, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    patient = relationship("Patient", back_populates="user", uselist=False)
+    doctor = relationship("Doctor", back_populates="user", uselist=False)
 
 class Patient(Base):
-    __tablename__ = 'patients'
-
+    __tablename__ = "patients"
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    birth_date = Column(DateTime)
-    gender = Column(String)
+    name = Column(String)
+    age = Column(Integer)
+    condition = Column(String)
     user_id = Column(Integer, ForeignKey("users.id"))
-
     user = relationship("User", back_populates="patient")
+    appointments = relationship("Appointment", back_populates="patient")
 
-User.patient = relationship("Patient", back_populates="user")
+class Doctor(Base):
+    __tablename__ = "doctors"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    specialty = Column(String)
+    years_experience = Column(Integer)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user = relationship("User", back_populates="doctor")
+    appointments = relationship("Appointment", back_populates="doctor")
 
 class Appointment(Base):
-    __tablename__ = 'appointments'
-
+    __tablename__ = "appointments"
     id = Column(Integer, primary_key=True, index=True)
-    doctor_id = Column(Integer, ForeignKey("doctors.id"))
+    date = Column(DateTime)
     patient_id = Column(Integer, ForeignKey("patients.id"))
-    appointment_date = Column(DateTime)
-
-    doctor = relationship("Doctor")
-    patient = relationship("Patient")
+    doctor_id = Column(Integer, ForeignKey("doctors.id"))
+    notes = Column(String)
+    patient = relationship("Patient", back_populates="appointments")
+    doctor = relationship("Doctor", back_populates="appointments")

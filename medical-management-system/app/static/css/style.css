@@ -1,33 +1,40 @@
 body {
-    background-color: #1a1a1a;
-    color: #ffffff;
+  font-family: Arial, sans-serif;
+  margin: 20px;
 }
 
-.navbar {
-    margin-bottom: 2rem;
+nav {
+  margin-bottom: 20px;
+  padding: 10px;
+  background: #f0f0f0;
 }
 
-.card {
-    border: none;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+nav a {
+  margin-right: 15px;
+  text-decoration: none;
+  color: #333;
 }
 
-.table-dark {
-    --bs-table-bg: #2d2d2d;
-    --bs-table-striped-bg: #262626;
+form {
+  max-width: 300px;
+  margin: 20px 0;
 }
 
-.btn-success {
-    background-color: #28a745;
-    border: none;
+input, select, button {
+  display: block;
+  margin: 10px 0;
+  padding: 8px;
+  width: 100%;
 }
 
-.btn-warning {
-    background-color: #ffc107;
-    border: none;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
 
-.btn-danger {
-    background-color: #dc3545;
-    border: none;
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
 }
