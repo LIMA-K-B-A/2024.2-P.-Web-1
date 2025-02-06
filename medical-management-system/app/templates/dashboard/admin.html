@@ -1,24 +1,42 @@
-  {% extends "base.html" %}
-  {% block content %}
-  <h1>Painel do Administrador</h1>
-  <nav>
-      <a href="/patients">Gerenciar Pacientes</a>
-      <a href="/doctors">Gerenciar Médicos</a>
-      <a href="/appointments">Gerenciar Consultas</a>
-  </nav>
-  <h2>Pacientes</h2>
-  <table>
-      <tr>
-          <th>Nome</th>
-          <th>Idade</th>
-          <th>Condição</th>
-      </tr>
-      {% for patient in patients %}
-      <tr>
-          <td>{{ patient.name }}</td>
-          <td>{{ patient.age }}</td>
-          <td>{{ patient.condition }}</td>
-      </tr>
-      {% endfor %}
-  </table>
-  {% endblock %}
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h1>Painel do Administrador</h1>
+    <div class="actions">
+        <a href="/patients" class="btn btn-primary">Pacientes</a>
+        <a href="/doctors" class="btn btn-primary">Médicos</a>
+        <a href="/appointments" class="btn btn-primary">Consultas</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="header">
+        <h2>Pacientes</h2>
+        <a href="/patients/add" class="btn btn-success">Novo Paciente</a>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Idade</th>
+                <th>Condição</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+            <tr>
+                <td>{{ patient.name }}</td>
+                <td>{{ patient.age }}</td>
+                <td>{{ patient.condition }}</td>
+                <td>
+                    <a href="/patients/edit/{{ patient.id }}" class="btn btn-primary">Editar</a>
+                    <a href="/patients/delete/{{ patient.id }}" class="btn btn-danger" onclick="return confirm('Tem certeza?')">Excluir</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
