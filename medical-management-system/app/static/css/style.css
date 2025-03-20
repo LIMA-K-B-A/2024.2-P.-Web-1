@@ -1,33 +1,124 @@
-body {
-    background-color: #1a1a1a;
-    color: #ffffff;
+:root {
+  --primary: #2a2a2a;
+  --secondary: #1a1a1a;
+  --accent: #007bff;
+  --text: #ffffff;
+  --text-muted: #cccccc;
+  --danger: #dc3545;
+  --success: #28a745;
 }
 
-.navbar {
-    margin-bottom: 2rem;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  background-color: var(--primary);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+nav {
+  background-color: var(--secondary);
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+nav a {
+  color: var(--text);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+nav a:hover {
+  background-color: var(--accent);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
 }
 
 .card {
-    border: none;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  background-color: var(--secondary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.table-dark {
-    --bs-table-bg: #2d2d2d;
-    --bs-table-striped-bg: #262626;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
 }
 
-.btn-success {
-    background-color: #28a745;
-    border: none;
+th, td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-.btn-warning {
-    background-color: #ffc107;
-    border: none;
+th {
+  background-color: var(--primary);
+}
+
+tr:hover {
+  background-color: rgba(255,255,255,0.05);
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background-color: var(--accent);
+  color: white;
 }
 
 .btn-danger {
-    background-color: #dc3545;
-    border: none;
+  background-color: var(--danger);
+  color: white;
+}
+
+.btn-success {
+  background-color: var(--success);
+  color: white;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: var(--primary);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  color: var(--text);
+  margin-top: 0.5rem;
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+.alert-danger {
+  background-color: var(--danger);
+  color: white;
 }

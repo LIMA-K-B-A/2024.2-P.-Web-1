@@ -1,38 +1,106 @@
-<!-- app/templates/dashboard/admin.html -->
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Admin{% endblock %}
-
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold">Dashboard - Admin</h2>
-    <a href="/add-doctor" class="bg-green-500 text-white p-2 rounded-md">Adicionar Médico</a>
+<div class="card">
+    <h1>Painel do Administrador</h1>
+    <div class="actions">
+        <a href="/patients" class="btn btn-primary">Pacientes</a>
+        <a href="/doctors" class="btn btn-primary">Médicos</a>
+        <a href="/appointments" class="btn btn-primary">Consultas</a>
+    </div>
 </div>
 
-<h3 class="text-xl font-semibold mb-4">Médicos</h3>
-<table class="min-w-full table-auto border-collapse border border-gray-300">
-    <thead>
-        <tr>
-            <th class="border p-2">Nome</th>
-            <th class="border p-2">Especialidade</th>
-            <th class="border p-2">Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Iterar médicos aqui -->
-        {% for doctor in doctors %}
-        <tr>
-            <td class="border p-2">{{ doctor.name }}</td>
-            <td class="border p-2">{{ doctor.specialty }}</td>
-            <td class="border p-2">
-                <a href="/edit-doctor/{{ doctor.id }}" class="text-yellow-500">Editar</a> | 
-                <a href="/delete-doctor/{{ doctor.id }}" class="text-red-500">Excluir</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="card">
+    <div class="header">
+        <h2>Consultas</h2>
+        <a href="/appointments/add" class="btn btn-success">Nova Consulta</a>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Paciente</th>
+                <th>Médico</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment in appointments %}
+            <tr>
+                <td>{{ appointment.patient.name }}</td>
+                <td>{{ appointment.doctor.name }}</td>
+                <td>{{ appointment.appointment_time }}</td>
+                <td>{{ appointment.status }}</td>
+                <td>
+                    <a href="/appointments/edit/{{ appointment.id }}" class="btn btn-primary">Editar</a>
+                    <a href="/appointments/delete/{{ appointment.id }}" class="btn btn-danger" onclick="return confirm('Tem certeza?')">Cancelar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-<h3 class="text-xl font-semibold mt-6 mb-4">Pacientes</h3>
-<!-- Exibir Pacientes com estrutura semelhante aos médicos -->
+<div class="card">
+    <div class="header">
+        <h2>Médicos</h2>
+        <a href="/doctors/add" class="btn btn-success">Novo Médico</a>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Especialidade</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doctor in doctors %}
+            <tr>
+                <td>{{ doctor.name }}</td>
+                <td>{{ doctor.specialty }}</td>
+                <td>
+                    <a href="/doctors/edit/{{ doctor.id }}" class="btn btn-primary">Editar</a>
+                    <a href="/doctors/delete/{{ doctor.id }}" class="btn btn-danger" onclick="return confirm('Tem certeza?')">Excluir</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <div class="header">
+        <h2>Pacientes</h2>
+        <a href="/patients/add" class="btn btn-success">Novo Paciente</a>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Idade</th>
+                <th>Condição</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+            <tr>
+                <td>{{ patient.name }}</td>
+                <td>{{ patient.age }}</td>
+                <td>{{ patient.condition }}</td>
+                <td>
+                    <a href="/patients/edit/{{ patient.id }}" class="btn btn-primary">Editar</a>
+                    <a href="/patients/delete/{{ patient.id }}" class="btn btn-danger" onclick="return confirm('Tem certeza?')">Excluir</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 {% endblock %}

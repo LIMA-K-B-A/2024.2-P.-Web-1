@@ -1,50 +1,32 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consultas</title>
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-    <h1>Consultas</h1>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h1>Painel de Consultas</h1>
+    <h2>Suas Consultas</h2>
     
-    <h2>Agendar Consulta</h2>
-    <form action="/appointments" method="POST">
-        <label for="date">Data:</label>
-        <input type="date" name="date" required>
-        <label for="time">Hora:</label>
-        <input type="time" name="time" required>
-        <label for="doctor_id">Médico:</label>
-        <select name="doctor_id" required>
-            <!-- Aqui você pode preencher com a lista de médicos -->
-            {% for doctor in doctors %}
-            <option value="{{ doctor.id }}">{{ doctor.email }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit">Agendar Consulta</button>
-    </form>
-    
-    <h2>Consultas Agendadas</h2>
     <table>
-        <tr>
-            <th>Data</th>
-            <th>Hora</th>
-            <th>Médico</th>
-            <th>Ações</th>
-        </tr>
-        {% for appointment in appointments %}
-        <tr>
-            <td>{{ appointment.date }}</td>
-            <td>{{ appointment.time }}</td>
-            <td>{{ appointment.doctor.email }}</td>
-            <td>
-                <form action="/appointments/{{ appointment.id }}" method="POST">
-                    <button type="submit">Cancelar</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
+        <thead>
+            <tr>
+                <th>Paciente</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment in appointments %}
+            <tr>
+                <td>{{ appointment.patient.name }}</td>
+                <td>{{ appointment.appointment_time }}</td>
+                <td>{{ appointment.status }}</td>
+                <td>
+                    <a href="#" class="btn btn-primary">Editar</a>
+                    <a href="#" class="btn btn-danger">Cancelar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
-</body>
-</html>
+</div>
+{% endblock %}
