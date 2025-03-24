@@ -49,7 +49,9 @@ public_routes = [
     "/cadastro/",
     "/static",
     "/favicon.ico",
-    "/static/img/favicon.svg"
+    "/static/img/favicon.svg",
+    "/static/css/style.css",
+    "/static/js/main.js"
 ]
 
 # Middleware de autenticação
