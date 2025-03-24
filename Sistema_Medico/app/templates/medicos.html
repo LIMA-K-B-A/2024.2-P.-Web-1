@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .medicos-container {
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    .sidebar {
+      width: 250px;
+      background-color: var(--primary-color);
+      color: white;
+      padding: 1rem;
+    }
+    
+    .sidebar-header {
+      padding: 1rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 1rem;
+    }
+    
+    .sidebar-header h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .nav-menu {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .nav-item {
+      margin-bottom: 0.5rem;
+    }
+    
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      color: white;
+      text-decoration: none;
+      border-radius: var(--border-radius);
+      transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+      background-color: var(--secondary-color);
+    }
+    
+    .nav-link i {
+      margin-right: 0.75rem;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      background-color: var(--background-color);
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    
+    .page-title {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      font-weight: 500;
+    }
+    
+    .btn-primary {
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--border-radius);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      background-color: #2980b9;
+    }
+    
+    .search-bar {
+      background: white;
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 2rem;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--light-gray);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+    }
+    
+    .medicos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .medico-card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+    
+    .medico-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .medico-header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    
+    .medico-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: white;
+      margin: 0 auto 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-color);
+      font-size: 2.5rem;
+    }
+    
+    .medico-info {
+      padding: 1.5rem;
+    }
+    
+    .medico-name {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+    
+    .medico-specialty {
+      color: var(--secondary-color);
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    
+    .medico-details {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 1.5rem;
+    }
+    
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Médicos</title>
+</head>
+
+<body class="bg-gray-100">
+  <nav class="bg-gray-800">
+    <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+      <div class="relative flex h-16 items-center justify-between">
+        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+          <svg class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+          <svg class="hidden size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+          </button>
+        </div>
+        <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+          <div class="flex shrink-0 items-center">
+            <img class="h-8 w-auto" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+          </div>
+          <div class="hidden sm:ml-6 sm:block">
+            <div class="flex space-x-4">
+              <a href="/home" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Home</a>
+              <a href="./listaMedicos" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Medicos</a>
+              <a href="./listaPacientes" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Pacientes</a>
+              <a href="./listaConsultas" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Consultas</a>
+              <!-- Novo botão de perfil -->
+              <a href="/perfil" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Perfil</a>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <button id="logout-btn" class=" text-white px-4 py-2 rounded-md ">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="container mx-auto py-12">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Lista de Médicos</h1>
+
+    <!-- Botão para adicionar médico -->
+    <div class="text-right mb-4">
+      <button onclick="abrirModal('addModal')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Adicionar Médico</button>
+    </div>
+
+    <!-- Tabela -->
+    <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+      <thead class="bg-gray-800 text-white">
+        <tr>
+          <th class="py-3 px-6 text-left">ID</th>
+          <th class="py-3 px-6 text-left">Nome</th>
+          <th class="py-3 px-6 text-left">Especialidade</th>
+          <th class="py-3 px-6 text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="table-body" class="text-gray-700">
+        <!-- Linhas dinâmicas serão inseridas aqui -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal para Adicionar Médico -->
+  <div id="addModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded-lg shadow-md w-96">
+      <h2 class="text-lg font-bold mb-4">Adicionar Médico</h2>
+      <form id="form-add">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Nome</label>
+          <input type="text" id="nome" name="nome" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Especialidade</label>
+          <input type="text" id="especialidade" name="especialidade" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="text-right">
+          <button type="button" onclick="fecharModal('addModal')" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancelar</button>
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal para Editar Médico -->
+  <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded-lg shadow-md w-96">
+      <h2 class="text-lg font-bold mb-4">Editar Médico</h2>
+      <form id="form-edit">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Nome</label>
+          <input type="text" id="edit-nome" name="nome" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Especialidade</label>
+          <input type="text" id="edit-especialidade" name="especialidade" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="text-right">
+          <button type="button" onclick="fecharModal('editModal')" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancelar</button>
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = "http://127.0.0.1:8000/medicos";
+
+    // Função para buscar a lista de médicos
+    async function fetchMedicos() {
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        const tableBody = document.getElementById("table-body");
+        tableBody.innerHTML = "";
+
+        data.forEach(medico => {
+          const row = `
+            <tr class="border-b border-gray-200">
+              <td class="py-3 px-6">${medico.id}</td>
+              <td class="py-3 px-6">${medico.nome}</td>
+              <td class="py-3 px-6">${medico.especialidade}</td>
+              <td class="py-3 px-6 text-center">
+                <button onclick="editarMedico(${medico.id})" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Editar</button>
+                <button onclick="deletarMedico(${medico.id})" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Excluir</button>
+              </td>
+            </tr>
+          `;
+          tableBody.insertAdjacentHTML("beforeend", row);
+        });
+      } catch (error) {
+        console.error("Erro:", error);
+      }
+    }
+
+    // Função para abrir um modal
+    function abrirModal(id) {
+      document.getElementById(id).classList.remove("hidden");
+    }
+
+    // Função para fechar um modal
+    function fecharModal(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
+
+    // Função para adicionar médico
+    document.getElementById("form-add").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value;
+      const especialidade = document.getElementById("especialidade").value;
+
+      try {
+        await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nome, especialidade })
+        });
+        fecharModal("addModal");
+        fetchMedicos();
+      } catch (error) {
+        console.error("Erro ao adicionar médico:", error);
+      }
+    });
+
+    // Função para excluir médico
+    async function deletarMedico(id) {
+      try {
+        await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
+        fetchMedicos();
+      } catch (error) {
+        console.error("Erro ao excluir médico:", error);
+      }
+    }
+
+    // Função para editar médico
+    async function editarMedico(id) {
+      try {
+        const response = await fetch(`${apiUrl}/${id}`);
+        const medico = await response.json();
+
+        // Preenche os campos do modal de edição com os dados do médico
+        document.getElementById("edit-nome").value = medico.nome;
+        document.getElementById("edit-especialidade").value = medico.especialidade;
+
+        // Exibe o modal
+        abrirModal('editModal');
+
+        // Submeter o formulário de edição
+        document.getElementById("form-edit").onsubmit = async function (e) {
+          e.preventDefault();
+          const nome = document.getElementById("edit-nome").value;
+          const especialidade = document.getElementById("edit-especialidade").value;
+
+          try {
+            await fetch(`${apiUrl}/${id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ nome, especialidade })
+            });
+            fecharModal("editModal");
+            fetchMedicos();
+          } catch (error) {
+            console.error("Erro ao editar médico:", error);
+          }
+        };
+
+      } catch (error) {
+        console.error("Erro ao buscar médico:", error);
+      }
+    }
+
+    // Chamar função ao carregar a página
+    window.onload = fetchMedicos;
+    function verificarAutenticacao() {
+      const token = localStorage.getItem("access_token"); // Ou sessionStorage.getItem("auth_token")
+      if (!token) {
+        // Se não houver token, redireciona para a tela de login
+        window.location.href = "/"; // Substitua "/login" pela URL da sua página de login
+      }
+    }
+
+    window.onload = function () {
+      verificarAutenticacao();
+      fetchMedicos();
+    };
+
+    document.getElementById('logout-btn').addEventListener('click', function () {
+      localStorage.removeItem('access_token');
+      window.location.href = '/';
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Consultas Médicas</title>
+</head>
+
+<body class="bg-gray-100">
+  <nav class="bg-gray-800">
+    <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+      <div class="relative flex h-16 items-center justify-between">
+        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+          <svg class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+          <svg class="hidden size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+          </button>
+        </div>
+        <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+          <div class="flex shrink-0 items-center">
+            <img class="h-8 w-auto" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+          </div>
+          <div class="hidden sm:ml-6 sm:block">
+            <div class="flex space-x-4">
+              <a href="/home" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Home</a>
+              <a href="./listaMedicos" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Medicos</a>
+              <a href="./listaPacientes" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Pacientes</a>
+              <a href="./listaConsultas" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Consultas</a>
+              <!-- Novo botão de perfil -->
+              <a href="/perfil" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Perfil</a>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <button id="logout-btn" class=" text-white px-4 py-2 rounded-md ">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mx-auto py-12">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Lista de Consultas Médicas</h1>
+
+    <!-- Botão para adicionar consulta -->
+    <div class="text-right mb-4">
+      <button onclick="abrirModal('addModal')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Adicionar Consulta</button>
+    </div>
+
+    <!-- Tabela -->
+    <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+      <thead class="bg-gray-800 text-white">
+        <tr>
+          <th class="py-3 px-6 text-left">ID</th>
+          <th class="py-3 px-6 text-left">Paciente</th>
+          <th class="py-3 px-6 text-left">Médico</th>
+          <th class="py-3 px-6 text-left">Data</th>
+          <th class="py-3 px-6 text-left">Hora</th>
+          <th class="py-3 px-6 text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="table-body" class="text-gray-700">
+        <!-- Linhas dinâmicas serão inseridas aqui -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal para Adicionar Consulta -->
+  <div id="addModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded-lg shadow-md w-96">
+      <h2 class="text-lg font-bold mb-4">Adicionar Consulta</h2>
+      <form id="form-add">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Paciente</label>
+          <select id="paciente_id" name="paciente_id" class="mt-1 p-2 border w-full rounded" required>
+            <!-- Opções de pacientes serão carregadas aqui -->
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Médico</label>
+          <select id="medico_id" name="medico_id" class="mt-1 p-2 border w-full rounded" required>
+            <!-- Opções de médicos serão carregadas aqui -->
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Data</label>
+          <input type="date" id="data" name="data" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Hora</label>
+          <input type="time" id="hora" name="hora" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Descrição</label>
+          <textarea id="descricao" name="descricao" class="mt-1 p-2 border w-full rounded" required></textarea>
+        </div>
+        <div class="text-right">
+          <button type="button" onclick="fecharModal('addModal')" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancelar</button>
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal para Editar Consulta -->
+  <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded-lg shadow-md w-96">
+      <h2 class="text-lg font-bold mb-4">Editar Consulta</h2>
+      <form id="form-edit">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Paciente</label>
+          <select id="edit-paciente_id" name="paciente_id" class="mt-1 p-2 border w-full rounded" required>
+            <!-- Opções de pacientes serão carregadas aqui -->
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Médico</label>
+          <select id="edit-medico_id" name="medico_id" class="mt-1 p-2 border w-full rounded" required>
+            <!-- Opções de médicos serão carregadas aqui -->
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Data</label>
+          <input type="date" id="edit-data" name="data" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Hora</label>
+          <input type="time" id="edit-hora" name="hora" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Descrição</label>
+          <textarea id="edit-descricao" name="descricao" class="mt-1 p-2 border w-full rounded" required></textarea>
+        </div>
+        <div class="text-right">
+          <button type="button" onclick="fecharModal('editModal')" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancelar</button>
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = "http://127.0.0.1:8000/consultas";
+    const pacientesUrl = "http://127.0.0.1:8000/pacientes";
+    const medicosUrl = "http://127.0.0.1:8000/medicos";
+
+    // Função para buscar consultas
+    async function fetchConsultas() {
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        const tableBody = document.getElementById("table-body");
+        tableBody.innerHTML = "";
+
+        data.forEach(consulta => {
+          const row = `
+            <tr class="border-b border-gray-200">
+              <td class="py-3 px-6">${consulta.id}</td>
+              <td class="py-3 px-6">${consulta.paciente_id}</td>
+              <td class="py-3 px-6">${consulta.medico_id}</td>
+              <td class="py-3 px-6">${consulta.data}</td>
+              <td class="py-3 px-6">${consulta.hora}</td>
+              <td class="py-3 px-6 text-center">
+                <button onclick="editarConsulta(${consulta.id})" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Editar</button>
+                <button onclick="excluirConsulta(${consulta.id})" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Excluir</button>
+              </td>
+            </tr>
+          `;
+          tableBody.innerHTML += row;
+        });
+      } catch (error) {
+        console.error("Erro ao buscar consultas:", error);
+      }
+    }
+
+    // Função para carregar médicos e pacientes
+    async function loadSelectOptions() {
+      try {
+        const pacientesResponse = await fetch(pacientesUrl);
+        const pacientesData = await pacientesResponse.json();
+        const pacientesSelect = document.getElementById("paciente_id");
+        pacientesData.forEach(paciente => {
+          const option = document.createElement("option");
+          option.value = paciente.id;
+          option.textContent = paciente.nome;
+          pacientesSelect.appendChild(option);
+        });
+
+        const medicosResponse = await fetch(medicosUrl);
+        const medicosData = await medicosResponse.json();
+        const medicosSelect = document.getElementById("medico_id");
+        medicosData.forEach(medico => {
+          const option = document.createElement("option");
+          option.value = medico.id;
+          option.textContent = medico.nome;
+          medicosSelect.appendChild(option);
+        });
+
+        const editPacientesSelect = document.getElementById("edit-paciente_id");
+        pacientesData.forEach(paciente => {
+          const option = document.createElement("option");
+          option.value = paciente.id;
+          option.textContent = paciente.nome;
+          editPacientesSelect.appendChild(option);
+        });
+
+        const editMedicosSelect = document.getElementById("edit-medico_id");
+        medicosData.forEach(medico => {
+          const option = document.createElement("option");
+          option.value = medico.id;
+          option.textContent = medico.nome;
+          editMedicosSelect.appendChild(option);
+        });
+
+      } catch (error) {
+        console.error("Erro ao carregar médicos e pacientes:", error);
+      }
+    }
+
+    // Função para adicionar consulta
+    async function adicionarConsulta(event) {
+      event.preventDefault();
+
+      const paciente_id = document.getElementById("paciente_id").value;
+      const medico_id = document.getElementById("medico_id").value;
+      const data = document.getElementById("data").value;
+      const hora = document.getElementById("hora").value;
+      const descricao = document.getElementById("descricao").value;
+
+      try {
+        await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            paciente_id,
+            medico_id,
+            data,
+            hora,
+            descricao
+          })
+        });
+        fecharModal("addModal");
+        fetchConsultas(); // Atualiza a lista de consultas
+      } catch (error) {
+        console.error("Erro ao adicionar consulta:", error);
+      }
+    }
+
+    // Função para editar consulta
+    async function editarConsulta(id) {
+      try {
+        const response = await fetch(`${apiUrl}/${id}`);
+        const consulta = await response.json();
+
+        // Preenche os campos do formulário com os dados da consulta
+        document.getElementById("edit-paciente_id").value = consulta.paciente_id;
+        document.getElementById("edit-medico_id").value = consulta.medico_id;
+        document.getElementById("edit-data").value = consulta.data;
+        document.getElementById("edit-hora").value = consulta.hora;
+        document.getElementById("edit-descricao").value = consulta.descricao;
+
+        // Abre o modal de edição
+        abrirModal("editModal");
+
+        // Envia os dados alterados
+        document.getElementById("form-edit").onsubmit = async function (e) {
+          e.preventDefault();
+
+          const paciente_id = document.getElementById("edit-paciente_id").value;
+          const medico_id = document.getElementById("edit-medico_id").value;
+          const data = document.getElementById("edit-data").value;
+          const hora = document.getElementById("edit-hora").value;
+          const descricao = document.getElementById("edit-descricao").value;
+
+          const dataFormatada = new Date(`${data}T${hora}:00`).toISOString();
+          const [dataParte, horaParte] = dataFormatada.split("T");
+
+          try {
+            await fetch(`${apiUrl}/${id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                paciente_id,
+                medico_id,
+                data: dataParte,
+                hora: horaParte,
+                descricao
+              })
+            });
+            fecharModal("editModal");
+            fetchConsultas(); // Atualiza a lista de consultas
+          } catch (error) {
+            console.error("Erro ao editar consulta:", error);
+          }
+        };
+      } catch (error) {
+        console.error("Erro ao carregar consulta:", error);
+      }
+    }
+
+    // Função para excluir consulta
+    async function excluirConsulta(id) {
+      try {
+        if (confirm("Tem certeza que deseja excluir esta consulta?")) {
+          await fetch(`${apiUrl}/${id}`, {
+            method: "DELETE"
+          });
+          fetchConsultas(); // Atualiza a lista de consultas
+        }
+      } catch (error) {
+        console.error("Erro ao excluir consulta:", error);
+      }
+    }
+
+    // Função para abrir o modal
+    function abrirModal(modalId) {
+      document.getElementById(modalId).classList.remove("hidden");
+    }
+
+    // Função para fechar o modal
+    function fecharModal(modalId) {
+      document.getElementById(modalId).classList.add("hidden");
+    }
+
+    // Inicia o aplicativo
+    document.getElementById("form-add").onsubmit = adicionarConsulta;
+    window.onload = function () {
+      verificarAutenticacao();
+      loadSelectOptions();
+      fetchConsultas();
+    };
+    function verificarAutenticacao() {
+      const token = localStorage.getItem("access_token"); // Ou sessionStorage.getItem("auth_token")
+      if (!token) {
+        // Se não houver token, redireciona para a tela de login
+        window.location.href = "/"; // Substitua "/login" pela URL da sua página de login
+      }
+    }
+    document.getElementById('logout-btn').addEventListener('click', function () {
+      localStorage.removeItem('access_token');
+      window.location.href = '/';
+    });
+  </script>
+</body>
+
+</html>

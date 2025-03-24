@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedHub - Sistema de Gestão Médica</title>
+  <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    :root {
+      --primary-color: #4A90E2;
+      --primary-color-dark: #357ABD;
+      --primary-color-light: rgba(74, 144, 226, 0.1);
+      --background-color: #F5F7FA;
+      --text-color: #2C3E50;
+      --border-color: #E1E8ED;
+      --error-color: #E74C3C;
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    
+    .login-container {
+      background-color: white;
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #4A90E2, #357ABD);
+    }
+    
+    .login-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 1rem;
+    }
+    
+    .login-header h1 {
+      color: var(--primary-color);
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .login-header p {
+      color: var(--text-color);
+      margin-top: 0.5rem;
+      font-size: 1.1rem;
+      opacity: 0.8;
+    }
+    
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .form-group label {
+      color: var(--text-color);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+    
+    .form-group input {
+      padding: 0.875rem;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-color-light);
+    }
+    
+    .login-button {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.875rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 0.5rem;
+    }
+    
+    .login-button:hover {
+      background-color: var(--primary-color-dark);
+      transform: translateY(-1px);
+    }
+
+    .login-button:active {
+      transform: translateY(0);
+    }
+    
+    .register-link {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .register-link p {
+      color: var(--text-color);
+      margin: 0;
+      font-size: 0.95rem;
+    }
+    
+    .register-link a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+    
+    .register-link a:hover {
+      color: var(--primary-color-dark);
+    }
+    
+    .error-message {
+      background-color: #FDF3F2;
+      color: var(--error-color);
+      text-align: center;
+      margin-bottom: 1.25rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      display: none;
+      border: 1px solid #FADBD8;
+    }
+
+    .input-icon {
+      position: relative;
+    }
+
+    .input-icon i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #95A5A6;
+    }
+
+    .input-icon input {
+      padding-left: 2.75rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="login-header">
+      <img src="/static/img/favicon.svg" alt="MedHub Logo" class="logo">
+      <h1>MedHub</h1>
+      <p>Sistema de Gestão Médica</p>
+    </div>
+
+    <div class="error-message" id="error-message"></div>
+    
+    <form class="login-form" method="POST">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <div class="input-icon">
+          <i class="fas fa-envelope"></i>
+          <input type="email" id="email" name="email" required placeholder="Seu email">
+      </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <div class="input-icon">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="senha" name="senha" required placeholder="Sua senha">
+      </div>
+      </div>
+      
+      <button type="submit" class="login-button">
+        <i class="fas fa-sign-in-alt"></i> Entrar
+      </button>
+    </form>
+    
+    <div class="register-link">
+      <p>Não tem uma conta? <a href="/cadastro">Cadastre-se</a></p>
+    </div>
+  </div>
+
+  <script>
+    document.querySelector('.login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        
+        // Log dos dados para debug
+        console.log('Dados do formulário:', {
+            email: formData.get('email'),
+            senha: formData.get('senha')
+        });
+        
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                const data = await response.json();
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = data.detail || 'Erro ao fazer login. Tente novamente.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Se o login for bem sucedido, redireciona para a página inicial
+            window.location.href = '/home';
+        } catch (error) {
+            console.error('Erro:', error);
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = 'Erro ao fazer login. Tente novamente.';
+            errorMessage.style.display = 'block';
+        }
+    });
+  </script>
+</body>
+
+</html>

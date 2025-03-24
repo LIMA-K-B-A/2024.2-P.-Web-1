@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .pacientes-container {
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    .sidebar {
+      width: 250px;
+      background-color: var(--primary-color);
+      color: white;
+      padding: 1rem;
+    }
+    
+    .sidebar-header {
+      padding: 1rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 1rem;
+    }
+    
+    .sidebar-header h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .nav-menu {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .nav-item {
+      margin-bottom: 0.5rem;
+    }
+    
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      color: white;
+      text-decoration: none;
+      border-radius: var(--border-radius);
+      transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+      background-color: var(--secondary-color);
+    }
+    
+    .nav-link i {
+      margin-right: 0.75rem;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      background-color: var(--background-color);
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    
+    .page-title {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      font-weight: 500;
+    }
+    
+    .btn-primary {
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--border-radius);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      background-color: #2980b9;
+    }
+    
+    .search-bar {
+      background: white;
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 2rem;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--light-gray);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+    }
+    
+    .pacientes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .paciente-card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+    
+    .paciente-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .paciente-header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    
+    .paciente-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: white;
+      margin: 0 auto 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-color);
+      font-size: 2.5rem;
+    }
+    
+    .paciente-info {
+      padding: 1.5rem;
+    }
+    
+    .paciente-name {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+    
+    .paciente-id {
+      color: var(--secondary-color);
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    
+    .paciente-details {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 1.5rem;
+    }
+    
+    .paciente-detail {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      color: #666;
+    }
+    
+    .paciente-detail i {
+      color: var(--secondary-color);
+      width: 20px;
+    }
+    
+    .paciente-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding: 1rem;
+      border-top: 1px solid var(--light-gray);
+    }
+    
+    .btn-icon {
+      flex: 1;
+      padding: 0.5rem;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .btn-edit {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    .btn-delete {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+    
+    .btn-icon:hover {
+      opacity: 0.8;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      position: relative;
+      background-color: white;
+      margin: 2rem auto;
+      padding: 2rem;
+      width: 90%;
+      max-width: 600px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .modal-title {
+      color: var(--primary-color);
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+    
+    .close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #666;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .form-group label {
+      color: var(--primary-color);
+      font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group select {
+      padding: 0.75rem;
+      border: 1px solid var(--light-gray);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+    }
+    
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+    
+    .btn-secondary {
+      background-color: var(--light-gray);
+      color: var(--primary-color);
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--border-radius);
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #d5d5d5;
+    }
+    
+    @media (max-width: 768px) {
+      .pacientes-container {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+      }
+      
+      .main-content {
+        padding: 1rem;
+      }
+      
+      .pacientes-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="pacientes-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>MedHub</h1>
+        <p>Sistema Médico</p>
+      </div>
+      
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="/home" class="nav-link">
+              <i class="fas fa-home"></i>
+              Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/listaConsultas" class="nav-link">
+              <i class="fas fa-calendar-check"></i>
+              Consultas
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/listaMedicos" class="nav-link">
+              <i class="fas fa-user-md"></i>
+              Médicos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/listaPacientes" class="nav-link active">
+              <i class="fas fa-users"></i>
+              Pacientes
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/perfil" class="nav-link">
+              <i class="fas fa-user"></i>
+              Perfil
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/logout" class="nav-link">
+              <i class="fas fa-sign-out-alt"></i>
+              Sair
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="header">
+        <h1 class="page-title">Gerenciamento de Pacientes</h1>
+        <button class="btn-primary" onclick="showModal('pacienteModal')">
+          <i class="fas fa-plus"></i>
+          Novo Paciente
+          </button>
+        </div>
+      
+      <!-- Barra de Pesquisa -->
+      <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Buscar pacientes por nome, CPF ou telefone...">
+      </div>
+      
+      <!-- Grid de Pacientes -->
+      <div class="pacientes-grid">
+        {% for paciente in pacientes %}
+        <div class="paciente-card">
+          <div class="paciente-header">
+            <div class="paciente-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <h2 class="paciente-name">{{ paciente.nome }}</h2>
+            <p class="paciente-id">ID: {{ paciente.id }}</p>
+          </div>
+          
+          <div class="paciente-info">
+            <ul class="paciente-details">
+              <li class="paciente-detail">
+                <i class="fas fa-id-card"></i>
+                CPF: {{ paciente.cpf }}
+              </li>
+              <li class="paciente-detail">
+                <i class="fas fa-envelope"></i>
+                {{ paciente.email }}
+              </li>
+              <li class="paciente-detail">
+                <i class="fas fa-phone"></i>
+                {{ paciente.telefone }}
+              </li>
+              <li class="paciente-detail">
+                <i class="fas fa-calendar"></i>
+                Nascimento: {{ paciente.data_nascimento }}
+              </li>
+            </ul>
+            
+            <div class="paciente-actions">
+              <button class="btn-icon btn-edit" onclick="editarPaciente({{ paciente.id }})">
+                <i class="fas fa-edit"></i>
+                Editar
+              </button>
+              <button class="btn-icon btn-delete" onclick="excluirPaciente({{ paciente.id }})">
+                <i class="fas fa-trash"></i>
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </main>
+    </div>
+  
+  <!-- Modal de Paciente -->
+  <div id="pacienteModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Novo Paciente</h2>
+        <button class="close" onclick="hideModal('pacienteModal')">&times;</button>
+      </div>
+      
+      <form id="pacienteForm" onsubmit="salvarPaciente(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="nome">Nome Completo</label>
+            <input type="text" id="nome" name="nome" required>
+    </div>
+
+          <div class="form-group">
+            <label for="cpf">CPF</label>
+            <input type="text" id="cpf" name="cpf" required>
+  </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+          
+          <div class="form-group">
+            <label for="telefone">Telefone</label>
+            <input type="tel" id="telefone" name="telefone" required>
+        </div>
+          
+          <div class="form-group">
+            <label for="data_nascimento">Data de Nascimento</label>
+            <input type="date" id="data_nascimento" name="data_nascimento" required>
+  </div>
+
+          <div class="form-group">
+            <label for="endereco">Endereço</label>
+            <input type="text" id="endereco" name="endereco" required>
+        </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="hideModal('pacienteModal')">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-primary">
+            Salvar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', path='/js/main.js') }}"></script>
+  <script>
+    function showModal(modalId) {
+      document.getElementById(modalId).style.display = 'block';
+    }
+    
+    function hideModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+    
+    function salvarPaciente(event) {
+      event.preventDefault();
+      // Implementar lógica de salvamento
+      hideModal('pacienteModal');
+    }
+    
+    function editarPaciente(id) {
+      // Implementar lógica de edição
+      showModal('pacienteModal');
+    }
+    
+    function excluirPaciente(id) {
+      if (confirm('Tem certeza que deseja excluir este paciente?')) {
+        // Implementar lógica de exclusão
+      }
+    }
+    
+    // Fechar modal ao clicar fora
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+
+</html>

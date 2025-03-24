@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedHub - Perfil</title>
+  <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    :root {
+      --primary-color: #4A90E2;
+      --primary-color-dark: #357ABD;
+      --primary-color-light: rgba(74, 144, 226, 0.1);
+      --secondary-color: #2ECC71;
+      --accent-color: #E74C3C;
+      --background-color: #F5F7FA;
+      --text-color: #2C3E50;
+      --border-color: #E1E8ED;
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--background-color);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: white;
+      padding: 2rem 0;
+      box-shadow: var(--shadow-md);
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 0 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .logo {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 1rem;
+    }
+
+    .sidebar-header h1 {
+      color: var(--primary-color);
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .nav-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .nav-item {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.875rem 2rem;
+      color: var(--text-color);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background-color: var(--primary-color-light);
+      color: var(--primary-color);
+    }
+
+    .nav-link i {
+      margin-right: 1rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 250px;
+      padding: 2rem;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      background-color: white;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .header h1 {
+      color: var(--text-color);
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header h1 img {
+      width: 40px;
+      height: 40px;
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-info {
+      text-align: right;
+    }
+
+    .user-name {
+      color: var(--text-color);
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .user-role {
+      color: var(--text-color);
+      opacity: 0.8;
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    .logout-button {
+      background-color: transparent;
+      border: none;
+      color: var(--accent-color);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logout-button:hover {
+      background-color: rgba(231, 76, 60, 0.1);
+    }
+
+    .profile-container {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 2rem;
+    }
+
+    .profile-sidebar {
+      background-color: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--shadow-md);
+      text-align: center;
+    }
+
+    .profile-avatar {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin-bottom: 1.5rem;
+      object-fit: cover;
+      border: 4px solid var(--primary-color-light);
+      transition: transform 0.2s ease;
+    }
+
+    .profile-avatar:hover {
+      transform: scale(1.05);
+    }
+
+    .profile-name {
+      color: var(--text-color);
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+    }
+
+    .profile-email {
+      color: var(--text-color);
+      opacity: 0.8;
+      margin: 0 0 1.5rem;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+      background-color: var(--primary-color-light);
+      border-radius: 8px;
+      transition: transform 0.2s ease;
+    }
+
+    .stat-item:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-value {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .stat-label {
+      color: var(--text-color);
+      opacity: 0.8;
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    .profile-content {
+      background-color: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .section-title {
+      color: var(--text-color);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0 0 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title i {
+      color: var(--primary-color);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      color: var(--text-color);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.875rem;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-color-light);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-color-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: var(--background-color);
+      color: var(--text-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--border-color);
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background-color: var(--accent-color);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #C0392B;
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 60px;
+        padding: 1rem 0;
+      }
+
+      .sidebar-header h1,
+      .nav-link span {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 60px;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .profile-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <img src="/static/img/favicon.svg" alt="MedHub Logo" class="logo">
+      <h1>MedHub</h1>
+    </div>
+    
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="/home" class="nav-link">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/listaMedicos" class="nav-link">
+          <i class="fas fa-user-md"></i>
+          <span>Médicos</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/listaPacientes" class="nav-link">
+          <i class="fas fa-users"></i>
+          <span>Pacientes</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/listaConsultas" class="nav-link">
+          <i class="fas fa-calendar-check"></i>
+          <span>Consultas</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/perfil" class="nav-link active">
+          <i class="fas fa-user"></i>
+          <span>Perfil</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="main-content">
+    <header class="header">
+      <h1>
+        <img src="/static/img/favicon.svg" alt="MedHub Logo" style="width: 40px; height: 40px;">
+        Perfil do Usuário
+      </h1>
+      
+      <div class="user-menu">
+        <div class="user-info">
+          <p class="user-name">Administrador</p>
+          <p class="user-role">Admin</p>
+        </div>
+        <button class="logout-button" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Sair</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="profile-container">
+      <aside class="profile-sidebar">
+        <img src="/static/img/avatar.png" alt="Avatar do usuário" class="profile-avatar">
+        <h2 class="profile-name">Administrador</h2>
+        <p class="profile-email">admin@medhub.com</p>
+        
+        <div class="profile-stats">
+          <div class="stat-item">
+            <p class="stat-value">12</p>
+            <p class="stat-label">Consultas</p>
+          </div>
+          <div class="stat-item">
+            <p class="stat-value">156</p>
+            <p class="stat-label">Pacientes</p>
+          </div>
+        </div>
+
+        <button class="btn btn-danger" onclick="deleteAccount()">
+          <i class="fas fa-trash"></i>
+          Excluir Conta
+          </button>
+      </aside>
+
+      <div class="profile-content">
+        <section>
+          <h2 class="section-title">
+            <i class="fas fa-user-edit"></i>
+            Informações Pessoais
+          </h2>
+          
+          <form id="profile-form">
+            <div class="form-group">
+              <label for="nome">Nome</label>
+              <input type="text" id="nome" name="nome" value="Administrador" required>
+        </div>
+            
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" value="admin@medhub.com" required>
+      </div>
+            
+            <div class="button-group">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                Salvar Alterações
+              </button>
+              <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                <i class="fas fa-undo"></i>
+                Cancelar
+              </button>
+    </div>
+          </form>
+        </section>
+
+        <section style="margin-top: 2rem;">
+          <h2 class="section-title">
+            <i class="fas fa-lock"></i>
+            Alterar Senha
+          </h2>
+          
+          <form id="password-form">
+            <div class="form-group">
+              <label for="senha_atual">Senha Atual</label>
+              <input type="password" id="senha_atual" name="senha_atual" required>
+      </div>
+
+            <div class="form-group">
+              <label for="nova_senha">Nova Senha</label>
+              <input type="password" id="nova_senha" name="nova_senha" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="confirmar_senha">Confirmar Nova Senha</label>
+              <input type="password" id="confirmar_senha" name="confirmar_senha" required>
+          </div>
+            
+            <div class="button-group">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-key"></i>
+                Alterar Senha
+              </button>
+              <button type="button" class="btn btn-secondary" onclick="resetPasswordForm()">
+                <i class="fas fa-undo"></i>
+                Cancelar
+              </button>
+          </div>
+        </form>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function logout() {
+      window.location.href = '/logout';
+    }
+
+    function resetForm() {
+      document.getElementById('profile-form').reset();
+    }
+
+    function resetPasswordForm() {
+      document.getElementById('password-form').reset();
+    }
+
+    function deleteAccount() {
+      if (confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.')) {
+        // Implementar lógica de exclusão de conta
+        window.location.href = '/logout';
+      }
+    }
+
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const nome = document.getElementById('nome').value;
+      const email = document.getElementById('email').value;
+      
+      try {
+        const response = await fetch('/perfil/atualizar', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            nome,
+            email
+          })
+        });
+        
+        if (response.ok) {
+          alert('Perfil atualizado com sucesso!');
+        } else {
+          const data = await response.json();
+          alert(data.detail || 'Erro ao atualizar perfil');
+        }
+      } catch (error) {
+        alert('Erro ao conectar com o servidor');
+      }
+    });
+
+    document.getElementById('password-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const senha_atual = document.getElementById('senha_atual').value;
+      const nova_senha = document.getElementById('nova_senha').value;
+      const confirmar_senha = document.getElementById('confirmar_senha').value;
+
+      if (nova_senha !== confirmar_senha) {
+        alert('As senhas não coincidem');
+        return;
+      }
+
+      try {
+        const response = await fetch('/perfil/senha', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            senha_atual,
+            nova_senha
+          })
+        });
+
+        if (response.ok) {
+          alert('Senha alterada com sucesso!');
+          resetPasswordForm();
+        } else {
+          const data = await response.json();
+          alert(data.detail || 'Erro ao alterar senha');
+        }
+      } catch (error) {
+        alert('Erro ao conectar com o servidor');
+      }
+    });
+  </script>
+</body>
+
+</html>
