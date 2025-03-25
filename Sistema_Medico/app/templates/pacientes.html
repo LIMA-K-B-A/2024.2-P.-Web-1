@@ -79,6 +79,9 @@
   async function loadPacientes() {
     try {
       const response = await fetch('/pacientes');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar pacientes');
+      }
       const pacientes = await response.json();
       
       const tbody = document.getElementById('pacientes-list');
@@ -87,8 +90,8 @@
       pacientes.forEach(paciente => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${paciente.usuario.nome}</td>
-          <td>${paciente.usuario.email}</td>
+          <td>${paciente.nome}</td>
+          <td>${paciente.email}</td>
           <td>${paciente.cpf}</td>
           <td>${new Date(paciente.data_nascimento).toLocaleDateString()}</td>
           <td>${paciente.telefone}</td>
@@ -105,6 +108,7 @@
       });
     } catch (error) {
       console.error('Erro ao carregar pacientes:', error);
+      alert('Erro ao carregar lista de pacientes: ' + error.message);
     }
   }
 
@@ -163,8 +167,8 @@
       const paciente = await response.json();
       
       document.getElementById('modalTitle').textContent = 'Editar Paciente';
-      document.getElementById('nome').value = paciente.usuario.nome;
-      document.getElementById('email').value = paciente.usuario.email;
+      document.getElementById('nome').value = paciente.nome;
+      document.getElementById('email').value = paciente.email;
       document.getElementById('cpf').value = paciente.cpf;
       document.getElementById('data_nascimento').value = paciente.data_nascimento;
       document.getElementById('telefone').value = paciente.telefone;

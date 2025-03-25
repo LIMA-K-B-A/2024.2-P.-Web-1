@@ -27,6 +27,7 @@ class Usuario(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     medico = relationship("Medico", back_populates="usuario", uselist=False)
+    paciente = relationship("Paciente", back_populates="usuario", uselist=False)
 
     class Config:
         from_attributes = True
@@ -52,15 +53,15 @@ class Paciente(Base):
     __tablename__ = "pacientes"
 
     id = Column(Integer, primary_key=True, index=True)
-    nome = Column(String(100), nullable=False)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), unique=True)
     cpf = Column(String(14), unique=True, nullable=False)
-    email = Column(String(100))
     telefone = Column(String(20))
     data_nascimento = Column(DateTime(timezone=True))
     endereco = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
+    usuario = relationship("Usuario", back_populates="paciente")
     consultas = relationship("Consulta", back_populates="paciente")
 
     class Config:
