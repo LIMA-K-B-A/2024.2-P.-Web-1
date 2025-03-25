@@ -9,7 +9,8 @@ from app.routes import (
     auth_router,
     consulta_router,
     medico_router,
-    paciente_router
+    paciente_router,
+    usuario
 )
 from app.core.security import get_current_user_from_token
 from sqlalchemy.orm import Session
@@ -98,6 +99,7 @@ app.include_router(register_router)
 app.include_router(consulta_router, prefix="/consultas")
 app.include_router(medico_router, prefix="/medicos")
 app.include_router(paciente_router, prefix="/pacientes")
+app.include_router(usuario.router, prefix="/usuarios", tags=["usuarios"])
 
 # Rota específica para o favicon
 @app.get("/favicon.ico")

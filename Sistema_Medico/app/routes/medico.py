@@ -136,16 +136,25 @@ async def deletar_medico(medico_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Médico deletado com sucesso"}
 
-@router.get("/select", response_model=List[MedicoSelect])
+@router.get("/select")
 async def listar_medicos_select(db: Session = Depends(get_db)):
     """Lista médicos em formato simplificado para select."""
-    medicos = db.query(Medico).join(Usuario).all()
-    medicos_select = []
-    for medico in medicos:
-        medico_select = MedicoSelect(
-            id=medico.id,
-            nome=medico.usuario.nome,
-            especialidade=medico.especialidade
-        )
-        medicos_select.append(medico_select)
-    return medicos_select
+    try:
+        # Busca usuários que são médicos e faz join com a tabela de médicos
+        medicos = db.query(Usuario, Medico).join(
+            Medico, Usuario.id == Medico.usuario_id
+        ).filter(
+            Usuario.tipo_usuario == TipoUsuario.MEDICO
+        ).all()
+        
+        medicos_select = []
+        for usuario, medico in medicos:
+            medicos_select.append({
+                "id": medico.id,
+                "nome": usuario.nome,
+                "especialidade": medico.especialidade
+            })
+        return medicos_select
+    except Exception as e:
+        print(f"Erro ao buscar médicos: {str(e)}")  # Log do erro
+        raise HTTPException(status_code=500, detail=str(e))

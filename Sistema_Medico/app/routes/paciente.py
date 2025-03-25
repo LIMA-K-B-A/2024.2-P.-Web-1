@@ -143,16 +143,25 @@ async def deletar_paciente(paciente_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Paciente deletado com sucesso"}
 
-@router.get("/select", response_model=List[PacienteSelect])
+@router.get("/select")
 async def listar_pacientes_select(db: Session = Depends(get_db)):
     """Lista pacientes em formato simplificado para select."""
-    pacientes = db.query(Paciente).join(Paciente.usuario).all()
-    pacientes_select = []
-    for paciente in pacientes:
-        paciente_select = PacienteSelect(
-            id=paciente.id,
-            nome=paciente.usuario.nome,
-            cpf=paciente.cpf
-        )
-        pacientes_select.append(paciente_select)
-    return pacientes_select
+    try:
+        # Busca usuários que são pacientes e faz join com a tabela de pacientes
+        pacientes = db.query(Usuario, Paciente).join(
+            Paciente, Usuario.id == Paciente.usuario_id
+        ).filter(
+            Usuario.tipo_usuario == TipoUsuario.PACIENTE
+        ).all()
+        
+        pacientes_select = []
+        for usuario, paciente in pacientes:
+            pacientes_select.append({
+                "id": paciente.id,
+                "nome": usuario.nome,
+                "cpf": paciente.cpf
+            })
+        return pacientes_select
+    except Exception as e:
+        print(f"Erro ao buscar pacientes: {str(e)}")  # Log do erro
+        raise HTTPException(status_code=500, detail=str(e))

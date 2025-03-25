@@ -16,8 +16,8 @@
         <tr>
           <th>Paciente</th>
           <th>Médico</th>
-          <th>Data</th>
-          <th>Horário</th>
+          <th>Data/Hora</th>
+          <th>Tipo</th>
           <th>Status</th>
           <th>Ações</th>
         </tr>
@@ -49,13 +49,13 @@
       </div>
       
       <div style="margin-bottom: 1rem;">
-        <label for="data">Data</label>
-        <input type="date" id="data" name="data" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <label for="data_hora">Data e Hora</label>
+        <input type="datetime-local" id="data_hora" name="data_hora" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
       </div>
       
       <div style="margin-bottom: 1rem;">
-        <label for="horario">Horário</label>
-        <input type="time" id="horario" name="horario" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <label for="tipo_consulta">Tipo de Consulta</label>
+        <input type="text" id="tipo_consulta" name="tipo_consulta" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
       </div>
       
       <div style="margin-bottom: 1rem;">
@@ -83,6 +83,9 @@
   async function loadConsultas() {
     try {
       const response = await fetch('/consultas');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar consultas');
+      }
       const consultas = await response.json();
       
       const tbody = document.getElementById('consultas-list');
@@ -90,11 +93,12 @@
       
       consultas.forEach(consulta => {
         const tr = document.createElement('tr');
+        const dataHora = new Date(consulta.data_hora);
         tr.innerHTML = `
-          <td>${consulta.paciente.usuario.nome}</td>
-          <td>${consulta.medico.usuario.nome}</td>
-          <td>${new Date(consulta.data).toLocaleDateString()}</td>
-          <td>${consulta.horario}</td>
+          <td>${consulta.paciente.nome}</td>
+          <td>${consulta.medico.nome} - ${consulta.medico.especialidade}</td>
+          <td>${dataHora.toLocaleString()}</td>
+          <td>${consulta.tipo_consulta}</td>
           <td>
             <span class="status-badge" style="
               padding: 0.25rem 0.5rem;
@@ -119,54 +123,61 @@
       });
     } catch (error) {
       console.error('Erro ao carregar consultas:', error);
+      alert('Erro ao carregar lista de consultas: ' + error.message);
     }
   }
 
   // Função para carregar médicos e pacientes nos selects
   async function loadSelectOptions() {
     try {
-        // Carrega médicos
-        const medicosResponse = await fetch('/medicos/select');
-        if (!medicosResponse.ok) {
-            throw new Error('Erro ao carregar médicos');
-        }
-        const medicos = await medicosResponse.json();
-        const medicoSelect = document.getElementById('medico_id');
-        medicoSelect.innerHTML = '<option value="">Selecione um médico</option>';
-        
-        if (Array.isArray(medicos)) {
-            medicos.forEach(medico => {
-                const option = document.createElement('option');
-                option.value = medico.id;
-                option.textContent = `${medico.nome} - ${medico.especialidade}`;
-                medicoSelect.appendChild(option);
-            });
-        } else {
-            console.error('Formato inválido de dados de médicos:', medicos);
-        }
+      // Carrega médicos
+      const medicosResponse = await fetch('/usuarios/medicos');
+      if (!medicosResponse.ok) {
+        const errorData = await medicosResponse.json();
+        throw new Error(errorData.detail || 'Erro ao carregar médicos');
+      }
+      const medicos = await medicosResponse.json();
+      console.log('Médicos carregados:', medicos); // Debug
+      
+      const medicoSelect = document.getElementById('medico_id');
+      medicoSelect.innerHTML = '<option value="">Selecione um médico</option>';
+      
+      if (Array.isArray(medicos)) {
+        medicos.forEach(medico => {
+          const option = document.createElement('option');
+          option.value = medico.id;
+          option.textContent = `${medico.nome} - ${medico.especialidade}`;
+          medicoSelect.appendChild(option);
+        });
+      } else {
+        console.error('Formato inválido de dados de médicos:', medicos);
+      }
 
-        // Carrega pacientes
-        const pacientesResponse = await fetch('/pacientes/select');
-        if (!pacientesResponse.ok) {
-            throw new Error('Erro ao carregar pacientes');
-        }
-        const pacientes = await pacientesResponse.json();
-        const pacienteSelect = document.getElementById('paciente_id');
-        pacienteSelect.innerHTML = '<option value="">Selecione um paciente</option>';
-        
-        if (Array.isArray(pacientes)) {
-            pacientes.forEach(paciente => {
-                const option = document.createElement('option');
-                option.value = paciente.id;
-                option.textContent = `${paciente.nome} - CPF: ${paciente.cpf}`;
-                pacienteSelect.appendChild(option);
-            });
-        } else {
-            console.error('Formato inválido de dados de pacientes:', pacientes);
-        }
+      // Carrega pacientes
+      const pacientesResponse = await fetch('/usuarios/pacientes');
+      if (!pacientesResponse.ok) {
+        const errorData = await pacientesResponse.json();
+        throw new Error(errorData.detail || 'Erro ao carregar pacientes');
+      }
+      const pacientes = await pacientesResponse.json();
+      console.log('Pacientes carregados:', pacientes); // Debug
+      
+      const pacienteSelect = document.getElementById('paciente_id');
+      pacienteSelect.innerHTML = '<option value="">Selecione um paciente</option>';
+      
+      if (Array.isArray(pacientes)) {
+        pacientes.forEach(paciente => {
+          const option = document.createElement('option');
+          option.value = paciente.id;
+          option.textContent = `${paciente.nome} - CPF: ${paciente.cpf}`;
+          pacienteSelect.appendChild(option);
+        });
+      } else {
+        console.error('Formato inválido de dados de pacientes:', pacientes);
+      }
     } catch (error) {
-        console.error('Erro ao carregar opções:', error);
-        alert('Erro ao carregar médicos e pacientes: ' + error.message);
+      console.error('Erro ao carregar opções:', error);
+      alert('Erro ao carregar médicos e pacientes: ' + error.message);
     }
   }
 
@@ -185,6 +196,7 @@
   function openAddModal() {
     document.getElementById('modalTitle').textContent = 'Agendar Consulta';
     document.getElementById('consultaForm').reset();
+    loadSelectOptions(); // Carrega as opções quando abre o modal
     document.getElementById('consultaModal').style.display = 'block';
   }
 
@@ -201,8 +213,8 @@
     const data = {
       paciente_id: parseInt(formData.get('paciente_id')),
       medico_id: parseInt(formData.get('medico_id')),
-      data: formData.get('data'),
-      horario: formData.get('horario'),
+      data_hora: formData.get('data_hora'),
+      tipo_consulta: formData.get('tipo_consulta'),
       status: formData.get('status')
     };
     
@@ -237,8 +249,8 @@
       document.getElementById('modalTitle').textContent = 'Editar Consulta';
       document.getElementById('paciente_id').value = consulta.paciente_id;
       document.getElementById('medico_id').value = consulta.medico_id;
-      document.getElementById('data').value = consulta.data;
-      document.getElementById('horario').value = consulta.horario;
+      document.getElementById('data_hora').value = consulta.data_hora;
+      document.getElementById('tipo_consulta').value = consulta.tipo_consulta;
       document.getElementById('status').value = consulta.status;
       
       document.getElementById('consultaModal').style.display = 'block';
