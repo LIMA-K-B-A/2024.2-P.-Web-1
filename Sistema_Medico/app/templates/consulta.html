@@ -125,29 +125,48 @@
   // Função para carregar médicos e pacientes nos selects
   async function loadSelectOptions() {
     try {
-      // Carrega médicos
-      const medicosResponse = await fetch('/medicos');
-      const medicos = await medicosResponse.json();
-      const medicoSelect = document.getElementById('medico_id');
-      medicos.forEach(medico => {
-        const option = document.createElement('option');
-        option.value = medico.id;
-        option.textContent = `${medico.usuario.nome} - ${medico.especialidade}`;
-        medicoSelect.appendChild(option);
-      });
+        // Carrega médicos
+        const medicosResponse = await fetch('/medicos/select');
+        if (!medicosResponse.ok) {
+            throw new Error('Erro ao carregar médicos');
+        }
+        const medicos = await medicosResponse.json();
+        const medicoSelect = document.getElementById('medico_id');
+        medicoSelect.innerHTML = '<option value="">Selecione um médico</option>';
+        
+        if (Array.isArray(medicos)) {
+            medicos.forEach(medico => {
+                const option = document.createElement('option');
+                option.value = medico.id;
+                option.textContent = `${medico.nome} - ${medico.especialidade}`;
+                medicoSelect.appendChild(option);
+            });
+        } else {
+            console.error('Formato inválido de dados de médicos:', medicos);
+        }
 
-      // Carrega pacientes
-      const pacientesResponse = await fetch('/pacientes');
-      const pacientes = await pacientesResponse.json();
-      const pacienteSelect = document.getElementById('paciente_id');
-      pacientes.forEach(paciente => {
-        const option = document.createElement('option');
-        option.value = paciente.id;
-        option.textContent = paciente.usuario.nome;
-        pacienteSelect.appendChild(option);
-      });
+        // Carrega pacientes
+        const pacientesResponse = await fetch('/pacientes/select');
+        if (!pacientesResponse.ok) {
+            throw new Error('Erro ao carregar pacientes');
+        }
+        const pacientes = await pacientesResponse.json();
+        const pacienteSelect = document.getElementById('paciente_id');
+        pacienteSelect.innerHTML = '<option value="">Selecione um paciente</option>';
+        
+        if (Array.isArray(pacientes)) {
+            pacientes.forEach(paciente => {
+                const option = document.createElement('option');
+                option.value = paciente.id;
+                option.textContent = `${paciente.nome} - CPF: ${paciente.cpf}`;
+                pacienteSelect.appendChild(option);
+            });
+        } else {
+            console.error('Formato inválido de dados de pacientes:', pacientes);
+        }
     } catch (error) {
-      console.error('Erro ao carregar opções:', error);
+        console.error('Erro ao carregar opções:', error);
+        alert('Erro ao carregar médicos e pacientes: ' + error.message);
     }
   }
 
@@ -251,7 +270,7 @@
     }
   }
 
-  // Carrega os dados quando a página carregar
+  // Carrega os dados quando a página é carregada
   document.addEventListener('DOMContentLoaded', () => {
     loadConsultas();
     loadSelectOptions();

@@ -2,39 +2,74 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Medico, Usuario, TipoUsuario
-from app.core.security import get_password_hash
+from pydantic import BaseModel
+from typing import List
 
 router = APIRouter()
 
-@router.get("/")
+class MedicoCreate(BaseModel):
+    nome: str
+    email: str
+    senha: str
+    crm: str
+    especialidade: str
+    horario_atendimento: str
+
+class MedicoSelect(BaseModel):
+    id: int
+    nome: str
+    especialidade: str
+
+    class Config:
+        from_attributes = True
+
+class MedicoList(BaseModel):
+    id: int
+    nome: str
+    email: str
+    crm: str
+    especialidade: str
+    horario_atendimento: str
+
+    class Config:
+        from_attributes = True
+
+@router.get("/", response_model=List[MedicoList])
 async def listar_medicos(db: Session = Depends(get_db)):
     """Lista todos os médicos."""
-    return db.query(Medico).all()
+    medicos = db.query(Medico).join(Usuario).all()
+    medicos_list = []
+    for medico in medicos:
+        medico_list = MedicoList(
+            id=medico.id,
+            nome=medico.usuario.nome,
+            email=medico.usuario.email,
+            crm=medico.crm,
+            especialidade=medico.especialidade,
+            horario_atendimento=medico.horario_atendimento
+        )
+        medicos_list.append(medico_list)
+    return medicos_list
 
 @router.post("/")
 async def criar_medico(
-    nome: str,
-    email: str,
-    senha: str,
-    crm: str,
-    especialidade: str,
-    horario_atendimento: str,
+    medico: MedicoCreate,
     db: Session = Depends(get_db)
 ):
     """Cria um novo médico."""
     # Verifica se o email já está em uso
-    if db.query(Usuario).filter(Usuario.email == email).first():
+    if db.query(Usuario).filter(Usuario.email == medico.email).first():
         raise HTTPException(status_code=400, detail="Email já está em uso")
 
     # Verifica se o CRM já está em uso
-    if db.query(Medico).filter(Medico.crm == crm).first():
+    if db.query(Medico).filter(Medico.crm == medico.crm).first():
         raise HTTPException(status_code=400, detail="CRM já está em uso")
 
     # Cria o usuário
     usuario = Usuario(
-        nome=nome,
-        email=email,
-        senha=get_password_hash(senha),
+        nome=medico.nome,
+        email=medico.email,
+        senha=medico.senha,
         tipo_usuario=TipoUsuario.MEDICO
     )
 
@@ -43,18 +78,18 @@ async def criar_medico(
     db.refresh(usuario)
 
     # Cria o médico
-    medico = Medico(
+    medico_db = Medico(
         usuario_id=usuario.id,
-        crm=crm,
-        especialidade=especialidade,
-        horario_atendimento=horario_atendimento
+        crm=medico.crm,
+        especialidade=medico.especialidade,
+        horario_atendimento=medico.horario_atendimento
     )
 
-    db.add(medico)
+    db.add(medico_db)
     db.commit()
-    db.refresh(medico)
+    db.refresh(medico_db)
 
-    return medico
+    return medico_db
 
 @router.get("/{medico_id}")
 async def obter_medico(medico_id: int, db: Session = Depends(get_db)):
@@ -100,3 +135,17 @@ async def deletar_medico(medico_id: int, db: Session = Depends(get_db)):
     db.delete(medico)
     db.commit()
     return {"message": "Médico deletado com sucesso"}
+
+@router.get("/select", response_model=List[MedicoSelect])
+async def listar_medicos_select(db: Session = Depends(get_db)):
+    """Lista médicos em formato simplificado para select."""
+    medicos = db.query(Medico).join(Usuario).all()
+    medicos_select = []
+    for medico in medicos:
+        medico_select = MedicoSelect(
+            id=medico.id,
+            nome=medico.usuario.nome,
+            especialidade=medico.especialidade
+        )
+        medicos_select.append(medico_select)
+    return medicos_select

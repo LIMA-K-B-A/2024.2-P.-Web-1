@@ -79,6 +79,9 @@
   async function loadMedicos() {
     try {
       const response = await fetch('/medicos');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar médicos');
+      }
       const medicos = await response.json();
       
       const tbody = document.getElementById('medicos-list');
@@ -87,10 +90,10 @@
       medicos.forEach(medico => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${medico.usuario.nome}</td>
+          <td>${medico.nome}</td>
           <td>${medico.crm}</td>
           <td>${medico.especialidade}</td>
-          <td>${medico.usuario.email}</td>
+          <td>${medico.email}</td>
           <td>${medico.horario_atendimento}</td>
           <td>
             <button class="btn" onclick="editMedico(${medico.id})" style="background: var(--primary-color-light); color: var(--primary-color); margin-right: 0.5rem;">
@@ -105,6 +108,7 @@
       });
     } catch (error) {
       console.error('Erro ao carregar médicos:', error);
+      alert('Erro ao carregar lista de médicos: ' + error.message);
     }
   }
 
@@ -163,8 +167,8 @@
       const medico = await response.json();
       
       document.getElementById('modalTitle').textContent = 'Editar Médico';
-      document.getElementById('nome').value = medico.usuario.nome;
-      document.getElementById('email').value = medico.usuario.email;
+      document.getElementById('nome').value = medico.nome;
+      document.getElementById('email').value = medico.email;
       document.getElementById('crm').value = medico.crm;
       document.getElementById('especialidade').value = medico.especialidade;
       document.getElementById('horario_atendimento').value = medico.horario_atendimento;
