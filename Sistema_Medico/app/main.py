@@ -119,6 +119,10 @@ async def get_current_user(request: Request, db: Session = Depends(get_db)):
     if not token:
         raise HTTPException(status_code=401, detail="Não autenticado")
     
+    # Remove o prefixo 'Bearer ' se existir
+    if token.startswith('Bearer '):
+        token = token.split(' ')[1]
+    
     user = get_current_user_from_token(token, db)
     if not user:
         raise HTTPException(status_code=401, detail="Não autenticado")
@@ -129,7 +133,7 @@ async def get_current_user(request: Request, db: Session = Depends(get_db)):
 @app.get("/home", response_class=HTMLResponse)
 async def home(request: Request, current_user = Depends(get_current_user)):
     return templates.TemplateResponse(
-        "index.html",
+        "home.html",
         {
             "request": request,
             "title": "MedHub - Dashboard",

@@ -3,7 +3,7 @@
 {% block content %}
 <div class="content-card">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-    <h2 style="margin: 0;">Lista de Consultas</h2>
+    <h2 class="content-title"><i class="fas fa-calendar-alt"></i> Lista de Consultas</h2>
     <button class="btn btn-primary" onclick="openAddModal()">
       <i class="fas fa-plus"></i>
       Agendar Consulta
@@ -30,37 +30,42 @@
 </div>
 
 <!-- Modal de Adicionar/Editar Consulta -->
-<div id="consultaModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
-  <div style="background: white; max-width: 500px; margin: 2rem auto; padding: 2rem; border-radius: 12px; box-shadow: var(--shadow-md);">
-    <h2 id="modalTitle">Agendar Consulta</h2>
+<div id="consultaModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle" class="modal-title"><i class="fas fa-calendar-plus"></i> Agendar Consulta</h2>
+      <button type="button" class="modal-close" onclick="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
     <form id="consultaForm" onsubmit="handleSubmit(event)">
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group">
         <label for="paciente_id">Paciente</label>
-        <select id="paciente_id" name="paciente_id" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <select id="paciente_id" name="paciente_id" required class="form-control">
           <option value="">Selecione um paciente</option>
         </select>
       </div>
       
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group">
         <label for="medico_id">Médico</label>
-        <select id="medico_id" name="medico_id" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <select id="medico_id" name="medico_id" required class="form-control">
           <option value="">Selecione um médico</option>
         </select>
       </div>
       
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group">
         <label for="data_hora">Data e Hora</label>
-        <input type="datetime-local" id="data_hora" name="data_hora" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <input type="datetime-local" id="data_hora" name="data_hora" required class="form-control">
       </div>
       
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group">
         <label for="tipo_consulta">Tipo de Consulta</label>
-        <input type="text" id="tipo_consulta" name="tipo_consulta" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <input type="text" id="tipo_consulta" name="tipo_consulta" required class="form-control" placeholder="Ex: Consulta de rotina, Retorno, etc.">
       </div>
       
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group">
         <label for="status">Status</label>
-        <select id="status" name="status" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <select id="status" name="status" required class="form-control">
           <option value="agendada">Agendada</option>
           <option value="confirmada">Confirmada</option>
           <option value="cancelada">Cancelada</option>
@@ -68,9 +73,13 @@
         </select>
       </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 1rem;">
-        <button type="button" class="btn" onclick="closeModal()" style="background: var(--border-color);">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Salvar</button>
+      <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> Salvar
+        </button>
       </div>
     </form>
   </div>
@@ -94,27 +103,24 @@
       consultas.forEach(consulta => {
         const tr = document.createElement('tr');
         const dataHora = new Date(consulta.data_hora);
+        
+        // Formatação status usando classes preexistentes
+        const statusClass = consulta.status;
+        const statusText = consulta.status.charAt(0).toUpperCase() + consulta.status.slice(1);
+        
         tr.innerHTML = `
           <td>${consulta.paciente.nome}</td>
           <td>${consulta.medico.nome} - ${consulta.medico.especialidade}</td>
           <td>${dataHora.toLocaleString()}</td>
           <td>${consulta.tipo_consulta}</td>
           <td>
-            <span class="status-badge" style="
-              padding: 0.25rem 0.5rem;
-              border-radius: 4px;
-              font-size: 0.875rem;
-              background-color: ${getStatusColor(consulta.status)};
-              color: white;
-            ">
-              ${consulta.status.charAt(0).toUpperCase() + consulta.status.slice(1)}
-            </span>
+            <span class="status-badge ${statusClass}">${statusText}</span>
           </td>
-          <td>
-            <button class="btn" onclick="editConsulta(${consulta.id})" style="background: var(--primary-color-light); color: var(--primary-color); margin-right: 0.5rem;">
+          <td class="action-buttons">
+            <button class="btn btn-primary action-btn" onclick="editConsulta(${consulta.id})">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="btn" onclick="deleteConsulta(${consulta.id})" style="background: var(--error-color); color: white;">
+            <button class="btn btn-danger action-btn" onclick="deleteConsulta(${consulta.id})">
               <i class="fas fa-trash"></i>
             </button>
           </td>
@@ -181,11 +187,11 @@
     }
   }
 
-  // Função para obter a cor do status
+  // Função para obter a cor do status - mantida por compatibilidade
   function getStatusColor(status) {
     const colors = {
       'agendada': '#F39C12',
-      'confirmada': '#3498DB',
+      'confirmada': '#4A90E2',  // Atualizada para corresponder à cor do tema
       'cancelada': '#E74C3C',
       'realizada': '#2ECC71'
     };
@@ -194,7 +200,7 @@
 
   // Função para abrir o modal de adicionar consulta
   function openAddModal() {
-    document.getElementById('modalTitle').textContent = 'Agendar Consulta';
+    document.getElementById('modalTitle').innerHTML = '<i class="fas fa-calendar-plus"></i> Agendar Consulta';
     document.getElementById('consultaForm').reset();
     loadSelectOptions(); // Carrega as opções quando abre o modal
     document.getElementById('consultaModal').style.display = 'block';
@@ -246,12 +252,19 @@
       const response = await fetch(`/consultas/${id}`);
       const consulta = await response.json();
       
-      document.getElementById('modalTitle').textContent = 'Editar Consulta';
+      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Consulta';
       document.getElementById('paciente_id').value = consulta.paciente_id;
       document.getElementById('medico_id').value = consulta.medico_id;
       document.getElementById('data_hora').value = consulta.data_hora;
       document.getElementById('tipo_consulta').value = consulta.tipo_consulta;
       document.getElementById('status').value = consulta.status;
+      
+      // Carregar todos os dados do select antes de selecionar o valor
+      await loadSelectOptions();
+      
+      // Agora definir os valores após carregar as opções
+      document.getElementById('paciente_id').value = consulta.paciente_id;
+      document.getElementById('medico_id').value = consulta.medico_id;
       
       document.getElementById('consultaModal').style.display = 'block';
     } catch (error) {

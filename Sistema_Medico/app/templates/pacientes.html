@@ -3,7 +3,7 @@
 {% block content %}
 <div class="content-card">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-    <h2 style="margin: 0;">Lista de Pacientes</h2>
+    <h2 class="content-title"><i class="fas fa-users"></i> Lista de Pacientes</h2>
     <button class="btn btn-primary" onclick="openAddModal()">
       <i class="fas fa-plus"></i>
       Adicionar Paciente
@@ -30,43 +30,54 @@
 </div>
 
 <!-- Modal de Adicionar/Editar Paciente -->
-<div id="pacienteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
-  <div style="background: white; max-width: 500px; margin: 2rem auto; padding: 2rem; border-radius: 12px; box-shadow: var(--shadow-md);">
-    <h2 id="modalTitle">Adicionar Paciente</h2>
+<div id="pacienteModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle" class="modal-title"><i class="fas fa-user-plus"></i> Adicionar Paciente</h2>
+      <button type="button" class="modal-close" onclick="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
     <form id="pacienteForm" onsubmit="handleSubmit(event)">
-      <div style="margin-bottom: 1rem;">
+      <input type="hidden" id="paciente_id" name="paciente_id" value="">
+      
+      <div class="form-group">
         <label for="nome">Nome</label>
-        <input type="text" id="nome" name="nome" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <input type="text" id="nome" name="nome" required class="form-control">
       </div>
       
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <input type="email" id="email" name="email" required class="form-control">
       </div>
       
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group">
         <label for="cpf">CPF</label>
-        <input type="text" id="cpf" name="cpf" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <input type="text" id="cpf" name="cpf" required class="form-control" placeholder="000.000.000-00">
       </div>
       
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group">
         <label for="data_nascimento">Data de Nascimento</label>
-        <input type="date" id="data_nascimento" name="data_nascimento" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <input type="date" id="data_nascimento" name="data_nascimento" required class="form-control">
       </div>
       
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group">
         <label for="telefone">Telefone</label>
-        <input type="tel" id="telefone" name="telefone" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <input type="tel" id="telefone" name="telefone" required class="form-control" placeholder="(00) 00000-0000">
       </div>
       
-      <div style="margin-bottom: 1rem;">
-        <label for="senha">Senha</label>
-        <input type="password" id="senha" name="senha" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+      <div class="form-group">
+        <label for="endereco">Endereço</label>
+        <input type="text" id="endereco" name="endereco" class="form-control">
       </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 1rem;">
-        <button type="button" class="btn" onclick="closeModal()" style="background: var(--border-color);">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Salvar</button>
+      <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> Salvar
+        </button>
       </div>
     </form>
   </div>
@@ -95,11 +106,11 @@
           <td>${paciente.cpf}</td>
           <td>${new Date(paciente.data_nascimento).toLocaleDateString()}</td>
           <td>${paciente.telefone}</td>
-          <td>
-            <button class="btn" onclick="editPaciente(${paciente.id})" style="background: var(--primary-color-light); color: var(--primary-color); margin-right: 0.5rem;">
+          <td class="action-buttons">
+            <button class="btn btn-primary action-btn" onclick="editPaciente(${paciente.id})">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="btn" onclick="deletePaciente(${paciente.id})" style="background: var(--error-color); color: white;">
+            <button class="btn btn-danger action-btn" onclick="deletePaciente(${paciente.id})">
               <i class="fas fa-trash"></i>
             </button>
           </td>
@@ -114,8 +125,9 @@
 
   // Função para abrir o modal de adicionar paciente
   function openAddModal() {
-    document.getElementById('modalTitle').textContent = 'Adicionar Paciente';
+    document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-plus"></i> Adicionar Paciente';
     document.getElementById('pacienteForm').reset();
+    document.getElementById('paciente_id').value = '';
     document.getElementById('pacienteModal').style.display = 'block';
   }
 
@@ -129,18 +141,29 @@
     event.preventDefault();
     
     const formData = new FormData(event.target);
+    const pacienteId = formData.get('paciente_id');
+    const isEditing = pacienteId && pacienteId !== '';
+    
     const data = {
       nome: formData.get('nome'),
       email: formData.get('email'),
-      senha: formData.get('senha'),
       cpf: formData.get('cpf'),
       data_nascimento: formData.get('data_nascimento'),
-      telefone: formData.get('telefone')
+      telefone: formData.get('telefone'),
+      endereco: formData.get('endereco')
     };
     
     try {
-      const response = await fetch('/pacientes', {
-        method: 'POST',
+      let url = '/pacientes';
+      let method = 'POST';
+      
+      if (isEditing) {
+        url = `/pacientes/${pacienteId}`;
+        method = 'PUT';
+      }
+      
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json'
         },
@@ -149,7 +172,7 @@
       
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.detail || 'Erro ao adicionar paciente');
+        throw new Error(error.detail || `Erro ao ${isEditing ? 'atualizar' : 'adicionar'} paciente`);
       }
       
       closeModal();
@@ -166,12 +189,14 @@
       const response = await fetch(`/pacientes/${id}`);
       const paciente = await response.json();
       
-      document.getElementById('modalTitle').textContent = 'Editar Paciente';
+      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-edit"></i> Editar Paciente';
+      document.getElementById('paciente_id').value = id;
       document.getElementById('nome').value = paciente.nome;
       document.getElementById('email').value = paciente.email;
       document.getElementById('cpf').value = paciente.cpf;
       document.getElementById('data_nascimento').value = paciente.data_nascimento;
       document.getElementById('telefone').value = paciente.telefone;
+      document.getElementById('endereco').value = paciente.endereco;
       
       document.getElementById('pacienteModal').style.display = 'block';
     } catch (error) {

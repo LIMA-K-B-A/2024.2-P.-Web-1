@@ -34,30 +34,21 @@ async def login(
 ):
     """Rota de autenticação."""
     try:
-        print(f"Tentando login com email: {email}")  # Log para debug
-        
         # Busca o usuário pelo email
         db_usuario = db.query(Usuario).filter(Usuario.email == email).first()
         
         if not db_usuario:
-            print(f"Usuário não encontrado: {email}")  # Log para debug
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "Email ou senha incorretos"}
             )
-
-        print(f"Usuário encontrado: {db_usuario.nome}")  # Log para debug
-        print(f"Senha armazenada: {db_usuario.senha}")  # Log para debug
         
         # Verifica a senha
         if not verify_password(senha, db_usuario.senha):
-            print(f"Senha incorreta para usuário: {email}")  # Log para debug
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "Email ou senha incorretos"}
             )
-        
-        print(f"Senha correta para usuário: {email}")  # Log para debug
         
         # Cria o token de acesso
         access_token = create_access_token(data={"sub": str(db_usuario.id)})
@@ -68,8 +59,10 @@ async def login(
             key="access_token",
             value=f"Bearer {access_token}",
             httponly=True,
-            secure=True,
-            samesite="lax"
+            max_age=3600 * 24,  # 1 dia de duração
+            path="/",
+            samesite="lax",
+            secure=False  # Altere para True em produção com HTTPS
         )
         return response
     except Exception as e:

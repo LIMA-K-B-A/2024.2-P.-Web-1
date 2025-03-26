@@ -124,7 +124,57 @@ async def obter_paciente(paciente_id: int, db: Session = Depends(get_db)):
         "email": paciente.usuario.email,
         "cpf": paciente.cpf,
         "data_nascimento": paciente.data_nascimento,
-        "telefone": paciente.telefone
+        "telefone": paciente.telefone,
+        "endereco": paciente.endereco if hasattr(paciente, 'endereco') else ""
+    }
+
+@router.put("/{paciente_id}")
+async def atualizar_paciente(
+    paciente_id: int,
+    paciente_data: dict,
+    db: Session = Depends(get_db)
+):
+    """Atualiza um paciente."""
+    paciente = db.query(Paciente).filter(Paciente.id == paciente_id).first()
+    if not paciente:
+        raise HTTPException(status_code=404, detail="Paciente não encontrado")
+    
+    # Atualiza os dados do paciente
+    if "cpf" in paciente_data:
+        paciente.cpf = paciente_data["cpf"]
+    if "data_nascimento" in paciente_data:
+        paciente.data_nascimento = paciente_data["data_nascimento"]
+    if "telefone" in paciente_data:
+        paciente.telefone = paciente_data["telefone"]
+    if "endereco" in paciente_data:
+        paciente.endereco = paciente_data["endereco"]
+    
+    # Atualiza os dados do usuário
+    usuario = db.query(Usuario).filter(Usuario.id == paciente.usuario_id).first()
+    if usuario:
+        if "nome" in paciente_data:
+            usuario.nome = paciente_data["nome"]
+        if "email" in paciente_data:
+            # Verifica se o novo email já está em uso por outro usuário
+            email_existente = db.query(Usuario).filter(
+                Usuario.email == paciente_data["email"], 
+                Usuario.id != paciente.usuario_id
+            ).first()
+            if email_existente:
+                raise HTTPException(status_code=400, detail="Email já está em uso")
+            usuario.email = paciente_data["email"]
+    
+    db.commit()
+    db.refresh(paciente)
+    
+    return {
+        "id": paciente.id,
+        "nome": usuario.nome,
+        "email": usuario.email,
+        "cpf": paciente.cpf,
+        "data_nascimento": paciente.data_nascimento,
+        "telefone": paciente.telefone,
+        "endereco": paciente.endereco if hasattr(paciente, 'endereco') else ""
     }
 
 @router.delete("/{paciente_id}")

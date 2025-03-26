@@ -143,7 +143,7 @@ async def obter_consulta(consulta_id: int, db: Session = Depends(get_db)):
 @router.put("/{consulta_id}")
 async def atualizar_consulta(
     consulta_id: int,
-    consulta: ConsultaCreate,
+    consulta_data: dict,
     db: Session = Depends(get_db)
 ):
     """Atualiza uma consulta."""
@@ -151,27 +151,61 @@ async def atualizar_consulta(
     if not consulta_db:
         raise HTTPException(status_code=404, detail="Consulta não encontrada")
 
-    # Verifica se o paciente existe
-    paciente = db.query(Paciente).filter(Paciente.id == consulta.paciente_id).first()
-    if not paciente:
-        raise HTTPException(status_code=404, detail="Paciente não encontrado")
+    # Verifica se o paciente existe, se foi fornecido
+    if "paciente_id" in consulta_data:
+        paciente = db.query(Paciente).filter(Paciente.id == consulta_data["paciente_id"]).first()
+        if not paciente:
+            raise HTTPException(status_code=404, detail="Paciente não encontrado")
+        consulta_db.paciente_id = consulta_data["paciente_id"]
 
-    # Verifica se o médico existe
-    medico = db.query(Medico).filter(Medico.id == consulta.medico_id).first()
-    if not medico:
-        raise HTTPException(status_code=404, detail="Médico não encontrado")
+    # Verifica se o médico existe, se foi fornecido
+    if "medico_id" in consulta_data:
+        medico = db.query(Medico).filter(Medico.id == consulta_data["medico_id"]).first()
+        if not medico:
+            raise HTTPException(status_code=404, detail="Médico não encontrado")
+        consulta_db.medico_id = consulta_data["medico_id"]
 
-    # Atualiza os campos
-    consulta_db.paciente_id = consulta.paciente_id
-    consulta_db.medico_id = consulta.medico_id
-    consulta_db.data_hora = consulta.data_hora
-    consulta_db.tipo_consulta = consulta.tipo_consulta
-    consulta_db.status = consulta.status
-    consulta_db.observacoes = consulta.observacoes
+    # Atualiza outros campos
+    if "data_hora" in consulta_data:
+        consulta_db.data_hora = consulta_data["data_hora"]
+    
+    if "motivo" in consulta_data:
+        consulta_db.tipo_consulta = consulta_data["motivo"]
+    elif "tipo_consulta" in consulta_data:
+        consulta_db.tipo_consulta = consulta_data["tipo_consulta"]
+        
+    if "status" in consulta_data:
+        consulta_db.status = consulta_data["status"]
+        
+    if "observacoes" in consulta_data:
+        consulta_db.observacoes = consulta_data["observacoes"]
 
-    db.commit()
-    db.refresh(consulta_db)
-    return consulta_db
+    try:
+        db.commit()
+        db.refresh(consulta_db)
+        
+        return {
+            "id": consulta_db.id,
+            "paciente_id": consulta_db.paciente_id,
+            "medico_id": consulta_db.medico_id,
+            "data_hora": consulta_db.data_hora,
+            "tipo_consulta": consulta_db.tipo_consulta,
+            "status": consulta_db.status,
+            "observacoes": consulta_db.observacoes,
+            "paciente": {
+                "id": consulta_db.paciente.id,
+                "nome": consulta_db.paciente.usuario.nome,
+                "cpf": consulta_db.paciente.cpf
+            },
+            "medico": {
+                "id": consulta_db.medico.id,
+                "nome": consulta_db.medico.usuario.nome,
+                "especialidade": consulta_db.medico.especialidade
+            }
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.delete("/{consulta_id}")
 async def deletar_consulta(consulta_id: int, db: Session = Depends(get_db)):

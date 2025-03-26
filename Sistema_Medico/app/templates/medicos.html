@@ -3,7 +3,7 @@
 {% block content %}
 <div class="content-card">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-    <h2 style="margin: 0;">Lista de Médicos</h2>
+    <h2 class="content-title"><i class="fas fa-user-md"></i> Lista de Médicos</h2>
     <button class="btn btn-primary" onclick="openAddModal()">
       <i class="fas fa-plus"></i>
       Adicionar Médico
@@ -30,43 +30,53 @@
 </div>
 
 <!-- Modal de Adicionar/Editar Médico -->
-<div id="medicoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
-  <div style="background: white; max-width: 500px; margin: 2rem auto; padding: 2rem; border-radius: 12px; box-shadow: var(--shadow-md);">
-    <h2 id="modalTitle">Adicionar Médico</h2>
+<div id="medicoModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle" class="modal-title"><i class="fas fa-user-md"></i> Adicionar Médico</h2>
+      <button type="button" class="modal-close" onclick="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
     <form id="medicoForm" onsubmit="handleSubmit(event)">
-      <div style="margin-bottom: 1rem;">
+      <input type="hidden" id="medico_id" name="medico_id" value="">
+      <div class="form-group">
         <label for="nome">Nome</label>
-        <input type="text" id="nome" name="nome" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <input type="text" id="nome" name="nome" required class="form-control">
       </div>
       
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <input type="email" id="email" name="email" required class="form-control">
       </div>
       
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group">
         <label for="crm">CRM</label>
-        <input type="text" id="crm" name="crm" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <input type="text" id="crm" name="crm" required class="form-control">
       </div>
       
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group">
         <label for="especialidade">Especialidade</label>
-        <input type="text" id="especialidade" name="especialidade" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <input type="text" id="especialidade" name="especialidade" required class="form-control">
       </div>
       
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group">
         <label for="horario_atendimento">Horário de Atendimento</label>
-        <input type="text" id="horario_atendimento" name="horario_atendimento" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;" placeholder="Ex: 08:00 - 18:00">
+        <input type="text" id="horario_atendimento" name="horario_atendimento" required class="form-control" placeholder="Ex: 08:00 - 18:00">
       </div>
       
-      <div style="margin-bottom: 1rem;">
+      <div class="form-group" id="senha-group">
         <label for="senha">Senha</label>
-        <input type="password" id="senha" name="senha" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+        <input type="password" id="senha" name="senha" class="form-control">
       </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 1rem;">
-        <button type="button" class="btn" onclick="closeModal()" style="background: var(--border-color);">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Salvar</button>
+      <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> Salvar
+        </button>
       </div>
     </form>
   </div>
@@ -95,11 +105,11 @@
           <td>${medico.especialidade}</td>
           <td>${medico.email}</td>
           <td>${medico.horario_atendimento}</td>
-          <td>
-            <button class="btn" onclick="editMedico(${medico.id})" style="background: var(--primary-color-light); color: var(--primary-color); margin-right: 0.5rem;">
+          <td class="action-buttons">
+            <button class="btn btn-primary action-btn" onclick="editMedico(${medico.id})">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="btn" onclick="deleteMedico(${medico.id})" style="background: var(--error-color); color: white;">
+            <button class="btn btn-danger action-btn" onclick="deleteMedico(${medico.id})">
               <i class="fas fa-trash"></i>
             </button>
           </td>
@@ -114,8 +124,11 @@
 
   // Função para abrir o modal de adicionar médico
   function openAddModal() {
-    document.getElementById('modalTitle').textContent = 'Adicionar Médico';
+    document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-md"></i> Adicionar Médico';
     document.getElementById('medicoForm').reset();
+    document.getElementById('medico_id').value = '';
+    document.getElementById('senha-group').style.display = 'block';
+    document.getElementById('senha').required = true;
     document.getElementById('medicoModal').style.display = 'block';
   }
 
@@ -129,18 +142,33 @@
     event.preventDefault();
     
     const formData = new FormData(event.target);
+    const medicoId = formData.get('medico_id');
+    const isEditing = medicoId && medicoId !== '';
+    
     const data = {
       nome: formData.get('nome'),
       email: formData.get('email'),
-      senha: formData.get('senha'),
       crm: formData.get('crm'),
       especialidade: formData.get('especialidade'),
       horario_atendimento: formData.get('horario_atendimento')
     };
     
+    // Adiciona a senha apenas se estiver criando um novo médico ou se foi fornecida
+    if (!isEditing || (formData.get('senha') && formData.get('senha').trim() !== '')) {
+      data.senha = formData.get('senha');
+    }
+    
     try {
-      const response = await fetch('/medicos', {
-        method: 'POST',
+      let url = '/medicos';
+      let method = 'POST';
+      
+      if (isEditing) {
+        url = `/medicos/${medicoId}`;
+        method = 'PUT';
+      }
+      
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json'
         },
@@ -149,7 +177,7 @@
       
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.detail || 'Erro ao adicionar médico');
+        throw new Error(error.detail || `Erro ao ${isEditing ? 'atualizar' : 'adicionar'} médico`);
       }
       
       closeModal();
@@ -166,12 +194,18 @@
       const response = await fetch(`/medicos/${id}`);
       const medico = await response.json();
       
-      document.getElementById('modalTitle').textContent = 'Editar Médico';
+      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-edit"></i> Editar Médico';
+      document.getElementById('medico_id').value = id;
       document.getElementById('nome').value = medico.nome;
       document.getElementById('email').value = medico.email;
       document.getElementById('crm').value = medico.crm;
       document.getElementById('especialidade').value = medico.especialidade;
       document.getElementById('horario_atendimento').value = medico.horario_atendimento;
+      
+      // Ao editar, a senha é opcional
+      document.getElementById('senha-group').style.display = 'block';
+      document.getElementById('senha').required = false;
+      document.getElementById('senha').placeholder = 'Deixe em branco para manter a senha atual';
       
       document.getElementById('medicoModal').style.display = 'block';
     } catch (error) {

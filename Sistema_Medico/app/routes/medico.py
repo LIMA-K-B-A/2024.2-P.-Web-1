@@ -94,16 +94,23 @@ async def criar_medico(
 @router.get("/{medico_id}")
 async def obter_medico(medico_id: int, db: Session = Depends(get_db)):
     """Obtém um médico pelo ID."""
-    medico = db.query(Medico).filter(Medico.id == medico_id).first()
+    medico = db.query(Medico).join(Usuario).filter(Medico.id == medico_id).first()
     if not medico:
         raise HTTPException(status_code=404, detail="Médico não encontrado")
-    return medico
+    
+    return {
+        "id": medico.id,
+        "nome": medico.usuario.nome,
+        "email": medico.usuario.email,
+        "crm": medico.crm,
+        "especialidade": medico.especialidade,
+        "horario_atendimento": medico.horario_atendimento
+    }
 
 @router.put("/{medico_id}")
 async def atualizar_medico(
     medico_id: int,
-    especialidade: str = None,
-    horario_atendimento: str = None,
+    medico_data: dict,
     db: Session = Depends(get_db)
 ):
     """Atualiza um médico."""
@@ -111,14 +118,55 @@ async def atualizar_medico(
     if not medico:
         raise HTTPException(status_code=404, detail="Médico não encontrado")
 
-    if especialidade:
-        medico.especialidade = especialidade
-    if horario_atendimento:
-        medico.horario_atendimento = horario_atendimento
+    # Atualiza os dados do médico
+    if "crm" in medico_data:
+        # Verifica se o CRM já está em uso por outro médico
+        crm_existente = db.query(Medico).filter(
+            Medico.crm == medico_data["crm"], 
+            Medico.id != medico_id
+        ).first()
+        if crm_existente:
+            raise HTTPException(status_code=400, detail="CRM já está em uso")
+        medico.crm = medico_data["crm"]
+        
+    if "especialidade" in medico_data:
+        medico.especialidade = medico_data["especialidade"]
+        
+    if "horario_atendimento" in medico_data:
+        medico.horario_atendimento = medico_data["horario_atendimento"]
+    
+    # Atualiza os dados do usuário
+    usuario = db.query(Usuario).filter(Usuario.id == medico.usuario_id).first()
+    if usuario:
+        if "nome" in medico_data:
+            usuario.nome = medico_data["nome"]
+            
+        if "email" in medico_data:
+            # Verifica se o email já está em uso por outro usuário
+            email_existente = db.query(Usuario).filter(
+                Usuario.email == medico_data["email"], 
+                Usuario.id != medico.usuario_id
+            ).first()
+            if email_existente:
+                raise HTTPException(status_code=400, detail="Email já está em uso")
+            usuario.email = medico_data["email"]
+            
+        # Atualiza a senha apenas se fornecida
+        if "senha" in medico_data and medico_data["senha"]:
+            usuario.senha = medico_data["senha"]
 
     db.commit()
     db.refresh(medico)
-    return medico
+    db.refresh(usuario)
+    
+    return {
+        "id": medico.id,
+        "nome": usuario.nome,
+        "email": usuario.email,
+        "crm": medico.crm,
+        "especialidade": medico.especialidade,
+        "horario_atendimento": medico.horario_atendimento
+    }
 
 @router.delete("/{medico_id}")
 async def deletar_medico(medico_id: int, db: Session = Depends(get_db)):

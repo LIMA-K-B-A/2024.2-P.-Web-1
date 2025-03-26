@@ -203,7 +203,7 @@
         <div class="input-icon">
           <i class="fas fa-envelope"></i>
           <input type="email" id="email" name="email" required placeholder="Seu email">
-      </div>
+        </div>
       </div>
       
       <div class="form-group">
@@ -211,7 +211,7 @@
         <div class="input-icon">
           <i class="fas fa-lock"></i>
           <input type="password" id="senha" name="senha" required placeholder="Sua senha">
-      </div>
+        </div>
       </div>
       
       <button type="submit" class="login-button">
@@ -230,35 +230,28 @@
         
         const formData = new FormData(e.target);
         
-        // Log dos dados para debug
-        console.log('Dados do formulário:', {
-            email: formData.get('email'),
-            senha: formData.get('senha')
-        });
-        
         try {
             const response = await fetch('/login', {
                 method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
+                body: formData
             });
             
-            if (!response.ok) {
+            const contentType = response.headers.get('content-type');
+            
+            if (contentType && contentType.includes('application/json')) {
+                // Se a resposta for JSON, provavelmente é um erro
                 const data = await response.json();
                 const errorMessage = document.getElementById('error-message');
-                errorMessage.textContent = data.detail || 'Erro ao fazer login. Tente novamente.';
+                errorMessage.textContent = data.detail || 'Erro ao fazer login';
                 errorMessage.style.display = 'block';
-                return;
+            } else {
+                // Se não for JSON, é um redirecionamento bem-sucedido
+                window.location.href = '/home';
             }
-            
-            // Se o login for bem sucedido, redireciona para a página inicial
-            window.location.href = '/home';
         } catch (error) {
             console.error('Erro:', error);
             const errorMessage = document.getElementById('error-message');
-            errorMessage.textContent = 'Erro ao fazer login. Tente novamente.';
+            errorMessage.textContent = 'Erro ao conectar com o servidor';
             errorMessage.style.display = 'block';
         }
     });
