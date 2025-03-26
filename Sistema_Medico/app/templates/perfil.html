@@ -27,24 +27,31 @@
       padding: 0;
       font-family: 'Roboto', sans-serif;
       background-color: var(--background-color);
-      display: flex;
+      color: var(--text-color);
+      display: grid;
+      grid-template-columns: 250px 1fr;
       min-height: 100vh;
     }
 
+    .dashboard {
+      display: contents;
+    }
+
     .sidebar {
-      width: 250px;
       background-color: white;
-      padding: 2rem 0;
-      box-shadow: var(--shadow-md);
-      position: fixed;
+      padding: 2rem;
+      border-right: 1px solid var(--border-color);
       height: 100vh;
+      position: fixed;
+      width: 250px;
+      box-sizing: border-box;
       overflow-y: auto;
+      z-index: 10;
     }
 
     .sidebar-header {
-      padding: 0 2rem;
-      margin-bottom: 2rem;
       text-align: center;
+      margin-bottom: 2rem;
     }
 
     .logo {
@@ -73,26 +80,31 @@
     .nav-link {
       display: flex;
       align-items: center;
-      padding: 0.875rem 2rem;
+      padding: 0.75rem 1rem;
       color: var(--text-color);
       text-decoration: none;
+      border-radius: 8px;
       transition: all 0.2s ease;
     }
 
-    .nav-link:hover, .nav-link.active {
+    .nav-link:hover {
       background-color: var(--primary-color-light);
       color: var(--primary-color);
     }
 
+    .nav-link.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
     .nav-link i {
-      margin-right: 1rem;
+      margin-right: 0.75rem;
       width: 20px;
       text-align: center;
     }
 
     .main-content {
-      flex: 1;
-      margin-left: 250px;
+      grid-column: 2;
       padding: 2rem;
     }
 
@@ -139,10 +151,10 @@
     }
 
     .user-role {
-      color: var(--text-color);
-      opacity: 0.8;
+      color: var(--primary-color);
       font-size: 0.875rem;
       margin: 0;
+      font-weight: 500;
     }
 
     .logout-button {
@@ -176,14 +188,26 @@
       text-align: center;
     }
 
-    .profile-avatar {
+    .profile-img-container {
       width: 150px;
       height: 150px;
+      margin: 0 auto 1.5rem;
+      position: relative;
       border-radius: 50%;
-      margin-bottom: 1.5rem;
-      object-fit: cover;
+      background-color: var(--primary-color-light);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
       border: 4px solid var(--primary-color-light);
-      transition: transform 0.2s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-avatar {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
     }
 
     .profile-avatar:hover {
@@ -201,6 +225,7 @@
       color: var(--text-color);
       opacity: 0.8;
       margin: 0 0 1.5rem;
+      word-break: break-word;
     }
 
     .profile-stats {
@@ -220,6 +245,7 @@
 
     .stat-item:hover {
       transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
     }
 
     .stat-value {
@@ -233,7 +259,7 @@
       color: var(--text-color);
       opacity: 0.8;
       font-size: 0.875rem;
-      margin: 0;
+      margin: 0.5rem 0 0;
     }
 
     .profile-content {
@@ -301,7 +327,12 @@
       transition: all 0.2s ease;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 0.5rem;
+    }
+
+    .btn-block {
+      width: 100%;
     }
 
     .btn-primary {
@@ -312,6 +343,7 @@
     .btn-primary:hover {
       background-color: var(--primary-color-dark);
       transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .btn-secondary {
@@ -322,6 +354,7 @@
     .btn-secondary:hover {
       background-color: var(--border-color);
       transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .btn-danger {
@@ -332,23 +365,22 @@
     .btn-danger:hover {
       background-color: #C0392B;
       transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     @media (max-width: 768px) {
-      .sidebar {
-        width: 60px;
-        padding: 1rem 0;
+      body {
+        grid-template-columns: 1fr;
       }
 
-      .sidebar-header h1,
-      .nav-link span {
+      .sidebar {
         display: none;
       }
 
       .main-content {
-        margin-left: 60px;
+        grid-column: 1;
       }
-
+      
       .header h1 {
         font-size: 1.5rem;
       }
@@ -361,187 +393,268 @@
 </head>
 
 <body>
-  <nav class="sidebar">
-    <div class="sidebar-header">
-      <img src="/static/img/favicon.svg" alt="MedHub Logo" class="logo">
-      <h1>MedHub</h1>
-    </div>
-    
-    <ul class="nav-menu">
-      <li class="nav-item">
-        <a href="/home" class="nav-link">
-          <i class="fas fa-home"></i>
-          <span>Dashboard</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="/listaMedicos" class="nav-link">
-          <i class="fas fa-user-md"></i>
-          <span>Médicos</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="/listaPacientes" class="nav-link">
-          <i class="fas fa-users"></i>
-          <span>Pacientes</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="/listaConsultas" class="nav-link">
-          <i class="fas fa-calendar-check"></i>
-          <span>Consultas</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="/perfil" class="nav-link active">
-          <i class="fas fa-user"></i>
-          <span>Perfil</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
-
-  <main class="main-content">
-    <header class="header">
-      <h1>
-        <img src="/static/img/favicon.svg" alt="MedHub Logo" style="width: 40px; height: 40px;">
-        Perfil do Usuário
-      </h1>
-      
-      <div class="user-menu">
-        <div class="user-info">
-          <p class="user-name">{{ user.nome }}</p>
-          <p class="user-role">{{ user.tipo_usuario }}</p>
-        </div>
-        <button class="logout-button" onclick="logout()">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Sair</span>
-        </button>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="/static/img/favicon.svg" alt="MedHub Logo" class="logo">
+        <h1>MedHub</h1>
       </div>
-    </header>
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="/home" class="nav-link">
+              <i class="fas fa-home"></i>
+              Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/listaMedicos" class="nav-link">
+              <i class="fas fa-user-md"></i>
+              Médicos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/listaPacientes" class="nav-link">
+              <i class="fas fa-users"></i>
+              Pacientes
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/listaConsultas" class="nav-link">
+              <i class="fas fa-calendar-alt"></i>
+              Consultas
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/perfil" class="nav-link active">
+              <i class="fas fa-user-circle"></i>
+              Perfil
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/logout" class="nav-link">
+              <i class="fas fa-sign-out-alt"></i>
+              Sair
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
 
-    <div class="profile-container">
-      <aside class="profile-sidebar">
-        <img src="/static/img/avatar.png" alt="Avatar do usuário" class="profile-avatar">
-        <h2 class="profile-name">{{ user.nome }}</h2>
-        <p class="profile-email">{{ user.email }}</p>
+    <main class="main-content">
+      <header class="header">
+        <h1>
+          <img src="/static/img/favicon.svg" alt="MedHub Logo" style="width: 40px; height: 40px;">
+          Perfil do Usuário
+        </h1>
         
-        <div class="profile-stats">
-          <div class="stat-item">
-            <p class="stat-value">
-              {% if user.tipo_usuario == 'medico' %}
-                {{ user.medico.consultas|length if user.medico else 0 }}
+        <div class="user-menu">
+          <div class="user-info">
+            <p class="user-name">{{ user.nome }}</p>
+            <p class="user-role">
+              {% if user.tipo_usuario == 'admin' %}
+                Admin
+              {% elif user.tipo_usuario == 'medico' %}
+                Médico
               {% elif user.tipo_usuario == 'paciente' %}
-                {{ user.paciente.consultas|length if user.paciente else 0 }}
+                Paciente
               {% else %}
-                --
+                {{ user.tipo_usuario }}
               {% endif %}
             </p>
-            <p class="stat-label">Consultas</p>
-          </div>
-          <div class="stat-item">
-            {% if user.tipo_usuario == 'admin' %}
-            <p class="stat-value">--</p>
-            <p class="stat-label">Usuários</p>
-            {% elif user.tipo_usuario == 'medico' %}
-            <p class="stat-value">
-              {% if user.medico and user.medico.especialidade %}
-                <i class="fas fa-stethoscope"></i>
-              {% else %}
-                <i class="fas fa-user-md"></i>
-              {% endif %}
-            </p>
-            <p class="stat-label">
-              {% if user.medico %}{{ user.medico.especialidade }}{% else %}Médico{% endif %}
-            </p>
-            {% elif user.tipo_usuario == 'paciente' %}
-            <p class="stat-value">
-              <i class="fas fa-user"></i>
-            </p>
-            <p class="stat-label">Paciente</p>
-            {% endif %}
           </div>
         </div>
+      </header>
 
-        <button class="btn btn-danger" onclick="deleteAccount()">
-          <i class="fas fa-trash"></i>
-          Excluir Conta
-        </button>
-      </aside>
-
-      <div class="profile-content">
-        <section>
-          <h2 class="section-title">
-            <i class="fas fa-user-edit"></i>
-            Informações Pessoais
-          </h2>
+      <div class="profile-container">
+        <aside class="profile-sidebar">
+          <div class="profile-img-container">
+            <img src="/static/img/avatar.png" alt="Avatar do usuário" class="profile-avatar">
+          </div>
+          <h2 class="profile-name">{{ user.nome }}</h2>
+          <p class="profile-email">{{ user.email }}</p>
           
-          <form id="profile-form">
-            <div class="form-group">
-              <label for="nome">Nome</label>
-              <input type="text" id="nome" name="nome" value="{{ user.nome }}" required>
+          <div class="profile-stats">
+            <div class="stat-item">
+              <p class="stat-value">
+                {% if user.tipo_usuario == 'medico' %}
+                  {{ user.medico.consultas|length if user.medico else 0 }}
+                {% elif user.tipo_usuario == 'paciente' %}
+                  {{ user.paciente.consultas|length if user.paciente else 0 }}
+                {% else %}
+                  --
+                {% endif %}
+              </p>
+              <p class="stat-label">Consultas</p>
             </div>
-            
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" name="email" value="{{ user.email }}" required>
+            <div class="stat-item">
+              {% if user.tipo_usuario == 'admin' %}
+              <p class="stat-value"><i class="fas fa-user-shield"></i></p>
+              <p class="stat-label">Admin</p>
+              {% elif user.tipo_usuario == 'medico' %}
+              <p class="stat-value">
+                <i class="fas fa-stethoscope"></i>
+              </p>
+              <p class="stat-label">
+                {% if user.medico %}{{ user.medico.especialidade }}{% else %}Médico{% endif %}
+              </p>
+              {% elif user.tipo_usuario == 'paciente' %}
+              <p class="stat-value">
+                <i class="fas fa-user"></i>
+              </p>
+              <p class="stat-label">Paciente</p>
+              {% endif %}
             </div>
-            
-            <div class="button-group">
-              <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i>
-                Salvar Alterações
-              </button>
-              <button type="button" class="btn btn-secondary" onclick="resetForm()">
-                <i class="fas fa-undo"></i>
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </section>
+          </div>
 
-        <section style="margin-top: 2rem;">
-          <h2 class="section-title">
-            <i class="fas fa-lock"></i>
-            Alterar Senha
-          </h2>
-          
-          <form id="password-form">
-            <div class="form-group">
-              <label for="senha_atual">Senha Atual</label>
-              <input type="password" id="senha_atual" name="senha_atual" required>
-            </div>
+          <button class="btn btn-danger btn-block" onclick="deleteAccount()">
+            <i class="fas fa-trash"></i>
+            Excluir Conta
+          </button>
+        </aside>
 
-            <div class="form-group">
-              <label for="nova_senha">Nova Senha</label>
-              <input type="password" id="nova_senha" name="nova_senha" required>
-            </div>
+        <div class="profile-content">
+          <section>
+            <h2 class="section-title">
+              <i class="fas fa-user-edit"></i>
+              Informações Pessoais
+            </h2>
             
-            <div class="form-group">
-              <label for="confirmar_senha">Confirmar Nova Senha</label>
-              <input type="password" id="confirmar_senha" name="confirmar_senha" required>
-            </div>
+            <form id="profile-form">
+              <div class="form-group">
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" name="nome" value="{{ user.nome }}" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="{{ user.email }}" required>
+              </div>
+              
+              <div class="button-group">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save"></i>
+                  Salvar Alterações
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                  <i class="fas fa-undo"></i>
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <section style="margin-top: 2rem;">
+            <h2 class="section-title">
+              <i class="fas fa-lock"></i>
+              Alterar Senha
+            </h2>
             
-            <div class="button-group">
-              <button type="submit" class="btn btn-primary">
-                <i class="fas fa-key"></i>
-                Alterar Senha
-              </button>
-              <button type="button" class="btn btn-secondary" onclick="resetPasswordForm()">
-                <i class="fas fa-undo"></i>
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </section>
+            <form id="password-form">
+              <div class="form-group">
+                <label for="senha_atual">Senha Atual</label>
+                <input type="password" id="senha_atual" name="senha_atual" required>
+              </div>
+
+              <div class="form-group">
+                <label for="nova_senha">Nova Senha</label>
+                <input type="password" id="nova_senha" name="nova_senha" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="confirmar_senha">Confirmar Nova Senha</label>
+                <input type="password" id="confirmar_senha" name="confirmar_senha" required>
+              </div>
+              
+              <div class="button-group">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-key"></i>
+                  Alterar Senha
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="resetPasswordForm()">
+                  <i class="fas fa-undo"></i>
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
       </div>
-    </div>
-  </main>
+    </main>
+  </div>
 
   <script>
-    function logout() {
-      window.location.href = '/logout';
+    // Função para exibir notificações
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.innerHTML = `
+        <div class="notification-content">
+          <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+          <span>${message}</span>
+        </div>
+        <button class="notification-close">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      document.body.appendChild(notification);
+      
+      // Adicionar estilo à notificação
+      notification.style.position = 'fixed';
+      notification.style.top = '20px';
+      notification.style.right = '20px';
+      notification.style.backgroundColor = type === 'success' ? '#2ECC71' : '#E74C3C';
+      notification.style.color = 'white';
+      notification.style.padding = '15px 20px';
+      notification.style.borderRadius = '8px';
+      notification.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      notification.style.display = 'flex';
+      notification.style.justifyContent = 'space-between';
+      notification.style.alignItems = 'center';
+      notification.style.minWidth = '300px';
+      notification.style.zIndex = '1000';
+      notification.style.animation = 'fadeIn 0.3s ease';
+      
+      // Estilo para o conteúdo da notificação
+      const content = notification.querySelector('.notification-content');
+      content.style.display = 'flex';
+      content.style.alignItems = 'center';
+      content.style.gap = '10px';
+      
+      // Estilo para o botão de fechar
+      const closeBtn = notification.querySelector('.notification-close');
+      closeBtn.style.background = 'transparent';
+      closeBtn.style.border = 'none';
+      closeBtn.style.color = 'white';
+      closeBtn.style.cursor = 'pointer';
+      closeBtn.style.fontSize = '16px';
+      
+      // Adicionar evento para fechar a notificação
+      closeBtn.addEventListener('click', () => {
+        notification.remove();
+      });
+      
+      // Remover a notificação após 5 segundos
+      setTimeout(() => {
+        notification.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+      }, 5000);
     }
+    
+    // Adicionar estilos de animação
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-20px); }
+      }
+    `;
+    document.head.appendChild(style);
 
     function resetForm() {
       document.getElementById('profile-form').reset();
@@ -555,6 +668,7 @@
 
     function deleteAccount() {
       if (confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.')) {
+        // Implementar a exclusão de conta ou redirecionar para a página apropriada
         window.location.href = '/logout';
       }
     }
@@ -564,6 +678,12 @@
       
       const nome = document.getElementById('nome').value;
       const email = document.getElementById('email').value;
+      
+      // Adicionar indicação visual de carregamento
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+      submitBtn.disabled = true;
       
       try {
         const response = await fetch('/perfil/atualizar', {
@@ -579,15 +699,26 @@
         
         if (response.ok) {
           const data = await response.json();
-          alert(data.message || 'Perfil atualizado com sucesso!');
-          window.location.reload();
+          showNotification(data.message || 'Perfil atualizado com sucesso!', 'success');
+          
+          // Atualizar o nome na página sem recarregar
+          const nameElements = document.querySelectorAll('.profile-name, .user-name');
+          nameElements.forEach(el => el.textContent = nome);
+          
+          // Atualizar o email na página sem recarregar
+          const emailElements = document.querySelectorAll('.profile-email');
+          emailElements.forEach(el => el.textContent = email);
         } else {
           const data = await response.json();
-          alert(data.detail || 'Erro ao atualizar perfil');
+          showNotification(data.detail || 'Erro ao atualizar perfil', 'error');
         }
       } catch (error) {
-        alert('Erro ao conectar com o servidor');
+        showNotification('Erro ao conectar com o servidor', 'error');
         console.error(error);
+      } finally {
+        // Restaurar o botão ao estado original
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
       }
     });
 
@@ -599,9 +730,15 @@
       const confirmar_senha = document.getElementById('confirmar_senha').value;
 
       if (nova_senha !== confirmar_senha) {
-        alert('As senhas não coincidem');
+        showNotification('As senhas não coincidem', 'error');
         return;
       }
+
+      // Adicionar indicação visual de carregamento
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Alterando senha...';
+      submitBtn.disabled = true;
 
       try {
         const response = await fetch('/perfil/senha', {
@@ -617,15 +754,19 @@
 
         if (response.ok) {
           const data = await response.json();
-          alert(data.message || 'Senha alterada com sucesso!');
+          showNotification(data.message || 'Senha alterada com sucesso!', 'success');
           resetPasswordForm();
         } else {
           const data = await response.json();
-          alert(data.detail || 'Erro ao alterar senha');
+          showNotification(data.detail || 'Erro ao alterar senha', 'error');
         }
       } catch (error) {
-        alert('Erro ao conectar com o servidor');
+        showNotification('Erro ao conectar com o servidor', 'error');
         console.error(error);
+      } finally {
+        // Restaurar o botão ao estado original
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
       }
     });
   </script>

@@ -183,13 +183,19 @@ async def perfil(request: Request, current_user = Depends(get_current_user)):
 
 @app.put("/perfil/atualizar")
 async def atualizar_perfil(
-    nome: str, 
-    email: str, 
     request: Request, 
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     try:
+        # Obter dados do corpo da requisição
+        dados = await request.json()
+        nome = dados.get("nome")
+        email = dados.get("email")
+        
+        if not nome or not email:
+            raise HTTPException(status_code=400, detail="Nome e email são obrigatórios")
+        
         # Verificar se o email já está sendo usado por outro usuário
         usuario_existente = db.query(Usuario).filter(Usuario.email == email, Usuario.id != current_user.id).first()
         if usuario_existente:
@@ -208,14 +214,20 @@ async def atualizar_perfil(
 
 @app.put("/perfil/senha")
 async def atualizar_senha(
-    senha_atual: str, 
-    nova_senha: str, 
     request: Request, 
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     try:
         from app.core.security import verify_password, get_password_hash
+        
+        # Obter dados do corpo da requisição
+        dados = await request.json()
+        senha_atual = dados.get("senha_atual")
+        nova_senha = dados.get("nova_senha")
+        
+        if not senha_atual or not nova_senha:
+            raise HTTPException(status_code=400, detail="Senha atual e nova senha são obrigatórias")
         
         # Verificar se a senha atual está correta
         if not verify_password(senha_atual, current_user.senha):
