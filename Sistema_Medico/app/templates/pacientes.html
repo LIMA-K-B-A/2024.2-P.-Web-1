@@ -100,11 +100,43 @@
       
       pacientes.forEach(paciente => {
         const tr = document.createElement('tr');
+        
+        // Formata a data de nascimento
+        let dataNascimento = '';
+        try {
+          if (paciente.data_nascimento) {
+            // Lida com diferentes formatos de data que podem vir do servidor
+            if (paciente.data_nascimento.includes('T')) {
+              // Se vier no formato ISO com timezone
+              dataNascimento = paciente.data_nascimento.split('T')[0];
+            } else if (paciente.data_nascimento.includes('-')) {
+              // Se já vier no formato YYYY-MM-DD
+              dataNascimento = paciente.data_nascimento;
+            }
+            
+            // Separa os componentes da data
+            const [ano, mes, dia] = dataNascimento.split('-').map(num => parseInt(num, 10));
+            
+            // Cria um objeto Date com timezone local, usando meio-dia para evitar problemas de timezone
+            const data = new Date(ano, mes - 1, dia, 12, 0, 0);
+            
+            if (!isNaN(data.getTime())) {
+              // Formata a data no formato brasileiro (dd/mm/yyyy)
+              dataNascimento = data.toLocaleDateString('pt-BR');
+            } else {
+              dataNascimento = paciente.data_nascimento;
+            }
+          }
+        } catch (e) {
+          console.error('Erro ao formatar data:', e);
+          dataNascimento = paciente.data_nascimento || '';
+        }
+        
         tr.innerHTML = `
           <td>${paciente.nome}</td>
           <td>${paciente.email}</td>
           <td>${paciente.cpf}</td>
-          <td>${new Date(paciente.data_nascimento).toLocaleDateString()}</td>
+          <td>${dataNascimento}</td>
           <td>${paciente.telefone}</td>
           <td class="action-buttons">
             <button class="btn btn-primary action-btn" onclick="editPaciente(${paciente.id})">
@@ -128,6 +160,17 @@
     document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-plus"></i> Adicionar Paciente';
     document.getElementById('pacienteForm').reset();
     document.getElementById('paciente_id').value = '';
+    
+    // Define uma data padrão (18 anos atrás)
+    const hoje = new Date();
+    const dataDezoitoAnosAtras = new Date(hoje.getFullYear() - 18, hoje.getMonth(), hoje.getDate());
+    const ano = dataDezoitoAnosAtras.getFullYear();
+    const mes = String(dataDezoitoAnosAtras.getMonth() + 1).padStart(2, '0');
+    const dia = String(dataDezoitoAnosAtras.getDate()).padStart(2, '0');
+    const dataFormatada = `${ano}-${mes}-${dia}`;
+    
+    document.getElementById('data_nascimento').value = dataFormatada;
+    
     document.getElementById('pacienteModal').style.display = 'block';
   }
 
@@ -144,14 +187,40 @@
     const pacienteId = formData.get('paciente_id');
     const isEditing = pacienteId && pacienteId !== '';
     
+    // Obtém a data de nascimento do formulário
+    let dataNascimento = formData.get('data_nascimento');
+    
+    // Garante que a data está no formato correto e ajusta o timezone
+    if (dataNascimento) {
+      try {
+        // Separa os componentes da data
+        const [ano, mes, dia] = dataNascimento.split('-').map(num => parseInt(num, 10));
+        
+        // Cria uma data com o timezone local e ajusta para meio-dia para evitar problemas de timezone
+        const data = new Date(ano, mes - 1, dia, 12, 0, 0);
+        
+        // Formata a data no formato YYYY-MM-DD
+        const anoFormatado = data.getFullYear();
+        const mesFormatado = String(data.getMonth() + 1).padStart(2, '0');
+        const diaFormatado = String(data.getDate()).padStart(2, '0');
+        
+        dataNascimento = `${anoFormatado}-${mesFormatado}-${diaFormatado}`;
+        console.log("Data formatada para envio:", dataNascimento);
+      } catch (e) {
+        console.error("Erro ao formatar data:", e);
+      }
+    }
+    
     const data = {
       nome: formData.get('nome'),
       email: formData.get('email'),
       cpf: formData.get('cpf'),
-      data_nascimento: formData.get('data_nascimento'),
+      data_nascimento: dataNascimento,
       telefone: formData.get('telefone'),
       endereco: formData.get('endereco')
     };
+    
+    console.log("Dados a serem enviados:", data);
     
     try {
       let url = '/pacientes';
@@ -189,14 +258,48 @@
       const response = await fetch(`/pacientes/${id}`);
       const paciente = await response.json();
       
+      console.log("Dados do paciente recebidos:", paciente);
+      
       document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-edit"></i> Editar Paciente';
       document.getElementById('paciente_id').value = id;
       document.getElementById('nome').value = paciente.nome;
       document.getElementById('email').value = paciente.email;
       document.getElementById('cpf').value = paciente.cpf;
-      document.getElementById('data_nascimento').value = paciente.data_nascimento;
-      document.getElementById('telefone').value = paciente.telefone;
-      document.getElementById('endereco').value = paciente.endereco;
+      
+      // Formata a data de nascimento para o formato YYYY-MM-DD
+      if (paciente.data_nascimento) {
+        let dataFormatada = '';
+        
+        // Verifica se a data está no formato YYYY-MM-DDThh:mm:ss.sssZ
+        if (paciente.data_nascimento.includes('T')) {
+          dataFormatada = paciente.data_nascimento.split('T')[0];
+        } 
+        // Verifica se a data está no formato YYYY-MM-DD
+        else if (paciente.data_nascimento.includes('-') && paciente.data_nascimento.split('-').length === 3) {
+          dataFormatada = paciente.data_nascimento;
+        } 
+        // Outras formas de data
+        else {
+          try {
+            const data = new Date(paciente.data_nascimento);
+            if (!isNaN(data.getTime())) {
+              // Formata a data como YYYY-MM-DD
+              const ano = data.getFullYear();
+              const mes = String(data.getMonth() + 1).padStart(2, '0');
+              const dia = String(data.getDate()).padStart(2, '0');
+              dataFormatada = `${ano}-${mes}-${dia}`;
+            }
+          } catch (e) {
+            console.error("Erro ao converter data:", e);
+          }
+        }
+        
+        console.log("Data formatada para o input:", dataFormatada);
+        document.getElementById('data_nascimento').value = dataFormatada;
+      }
+      
+      document.getElementById('telefone').value = paciente.telefone || '';
+      document.getElementById('endereco').value = paciente.endereco || '';
       
       document.getElementById('pacienteModal').style.display = 'block';
     } catch (error) {

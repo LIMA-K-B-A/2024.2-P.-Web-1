@@ -39,9 +39,11 @@
       </button>
     </div>
     <form id="consultaForm" onsubmit="handleSubmit(event)">
+      <input type="hidden" id="consulta_id" name="consulta_id" value="">
+      
       <div class="form-group">
         <label for="paciente_id">Paciente</label>
-        <select id="paciente_id" name="paciente_id" required class="form-control">
+        <select id="paciente_id" name="paciente_id" required class="form-control select2">
           <option value="">Selecione um paciente</option>
         </select>
       </div>
@@ -102,7 +104,46 @@
       
       consultas.forEach(consulta => {
         const tr = document.createElement('tr');
-        const dataHora = new Date(consulta.data_hora);
+        
+        // Formata a data e hora corretamente para evitar problemas de timezone
+        let dataHoraFormatada = '';
+        try {
+          // Verifica o formato da data recebida
+          const dataHoraOriginal = consulta.data_hora;
+          let dataObj;
+          
+          if (dataHoraOriginal.includes('T')) {
+            // Formato ISO completo com T
+            dataObj = new Date(dataHoraOriginal);
+          } else if (dataHoraOriginal.includes(' ')) {
+            // Formato 'YYYY-MM-DD HH:MM:SS'
+            const [dataParte, horaParte] = dataHoraOriginal.split(' ');
+            const [ano, mes, dia] = dataParte.split('-').map(num => parseInt(num, 10));
+            const [hora, minuto, segundo] = horaParte.split(':').map(num => parseInt(num, 10));
+            dataObj = new Date(ano, mes - 1, dia, hora, minuto, segundo || 0);
+          } else {
+            // Tenta interpretar o formato como está
+            dataObj = new Date(dataHoraOriginal);
+          }
+          
+          // Verifica se a data é válida
+          if (!isNaN(dataObj.getTime())) {
+            // Formata data e hora no formato local brasileiro
+            dataHoraFormatada = dataObj.toLocaleString('pt-BR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          } else {
+            // Fallback para o valor original
+            dataHoraFormatada = dataHoraOriginal;
+          }
+        } catch (e) {
+          console.error('Erro ao formatar data e hora:', e);
+          dataHoraFormatada = consulta.data_hora || '';
+        }
         
         // Formatação status usando classes preexistentes
         const statusClass = consulta.status;
@@ -111,7 +152,7 @@
         tr.innerHTML = `
           <td>${consulta.paciente.nome}</td>
           <td>${consulta.medico.nome} - ${consulta.medico.especialidade}</td>
-          <td>${dataHora.toLocaleString()}</td>
+          <td>${dataHoraFormatada}</td>
           <td>${consulta.tipo_consulta}</td>
           <td>
             <span class="status-badge ${statusClass}">${statusText}</span>
@@ -199,10 +240,49 @@
   }
 
   // Função para abrir o modal de adicionar consulta
-  function openAddModal() {
+  async function openAddModal() {
+    // Carrega as opções para os selects
+    await loadSelectOptions();
+    
     document.getElementById('modalTitle').innerHTML = '<i class="fas fa-calendar-plus"></i> Agendar Consulta';
     document.getElementById('consultaForm').reset();
-    loadSelectOptions(); // Carrega as opções quando abre o modal
+    
+    // Limpa explicitamente o ID da consulta
+    document.getElementById('consulta_id').value = '';
+    console.log("ID da consulta limpo para nova adição"); // Debug
+    
+    // Define um valor padrão para a data e hora (data atual, próxima hora completa)
+    try {
+      const agora = new Date();
+      
+      // Avança para a próxima hora completa
+      const proximaHora = new Date(
+        agora.getFullYear(),
+        agora.getMonth(),
+        agora.getDate(),
+        agora.getHours() + 1,
+        0, // minutos zerados
+        0  // segundos zerados
+      );
+      
+      // Formata para o formato esperado pelo input datetime-local (YYYY-MM-DDTHH:MM)
+      const ano = proximaHora.getFullYear();
+      const mes = String(proximaHora.getMonth() + 1).padStart(2, '0');
+      const dia = String(proximaHora.getDate()).padStart(2, '0');
+      const hora = String(proximaHora.getHours()).padStart(2, '0');
+      const minutos = String(proximaHora.getMinutes()).padStart(2, '0');
+      
+      const dataHoraFormatada = `${ano}-${mes}-${dia}T${hora}:${minutos}`;
+      document.getElementById('data_hora').value = dataHoraFormatada;
+      console.log("Data e hora padrão definidas como:", dataHoraFormatada);
+    } catch (e) {
+      console.error("Erro ao definir data e hora padrão:", e);
+    }
+    
+    // Reseta os selects do Select2
+    $('#paciente_id').val(null).trigger('change');
+    $('#medico_id').val(null).trigger('change');
+    
     document.getElementById('consultaModal').style.display = 'block';
   }
 
@@ -216,17 +296,73 @@
     event.preventDefault();
     
     const formData = new FormData(event.target);
+    const consultaId = formData.get('consulta_id');
+    const isEditing = consultaId && consultaId !== '';
+    
+    console.log("Enviando formulário - consultaId:", consultaId, "isEditing:", isEditing);
+    
+    // Validação adicional dos dados
+    const pacienteId = parseInt(formData.get('paciente_id'));
+    const medicoId = parseInt(formData.get('medico_id'));
+    
+    if (isNaN(pacienteId) || isNaN(medicoId)) {
+      alert("Erro: Paciente ou médico inválido");
+      return;
+    }
+    
+    // Obtém a data e hora do formulário e ajusta para evitar problemas de timezone
+    let dataHora = formData.get('data_hora');
+    
+    // Garantindo que a data está no formato esperado pelo backend (ISO sem timezone)
+    if (dataHora) {
+      try {
+        // Divide a string de data/hora nos seus componentes
+        const [dataParte, horaParte] = dataHora.split('T');
+        const [ano, mes, dia] = dataParte.split('-').map(num => parseInt(num, 10));
+        const [hora, minuto] = horaParte.split(':').map(num => parseInt(num, 10));
+        
+        // Cria um objeto Date com esses componentes exatos (sem ajuste de timezone)
+        const dataObj = new Date(ano, mes - 1, dia, hora, minuto);
+        
+        // Formata a data no formato ISO sem o timezone
+        const anoFormatado = dataObj.getFullYear();
+        const mesFormatado = String(dataObj.getMonth() + 1).padStart(2, '0');
+        const diaFormatado = String(dataObj.getDate()).padStart(2, '0');
+        const horaFormatada = String(dataObj.getHours()).padStart(2, '0');
+        const minutoFormatado = String(dataObj.getMinutes()).padStart(2, '0');
+        
+        // Formato ISO sem timezone (yyyy-MM-dd HH:mm)
+        dataHora = `${anoFormatado}-${mesFormatado}-${diaFormatado} ${horaFormatada}:${minutoFormatado}`;
+        console.log("Data e hora formatadas para envio:", dataHora);
+      } catch (e) {
+        console.error("Erro ao formatar data e hora:", e);
+      }
+    }
+    
     const data = {
-      paciente_id: parseInt(formData.get('paciente_id')),
-      medico_id: parseInt(formData.get('medico_id')),
-      data_hora: formData.get('data_hora'),
+      paciente_id: pacienteId,
+      medico_id: medicoId,
+      data_hora: dataHora,
       tipo_consulta: formData.get('tipo_consulta'),
       status: formData.get('status')
     };
     
+    console.log("Dados a serem enviados:", data);
+    
     try {
-      const response = await fetch('/consultas', {
-        method: 'POST',
+      let url = '/consultas';
+      let method = 'POST';
+      
+      if (isEditing) {
+        url = `/consultas/${consultaId}`;
+        method = 'PUT';
+        console.log(`Atualizando consulta ${consultaId} usando método ${method}`);
+      } else {
+        console.log("Criando nova consulta");
+      }
+      
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json'
         },
@@ -235,7 +371,17 @@
       
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.detail || 'Erro ao agendar consulta');
+        throw new Error(error.detail || `Erro ao ${isEditing ? 'atualizar' : 'agendar'} consulta`);
+      }
+      
+      // Tentar ler a resposta como JSON, mas não falhar se não for um JSON válido
+      let resultado;
+      try {
+        const texto = await response.text();
+        resultado = texto ? JSON.parse(texto) : {};
+        console.log("Resultado da operação:", resultado);
+      } catch (e) {
+        console.log("Resposta não é um JSON válido, mas a operação foi bem-sucedida");
       }
       
       closeModal();
@@ -248,24 +394,100 @@
 
   // Função para editar uma consulta
   async function editConsulta(id) {
+    if (!id) {
+      console.error("ID inválido recebido:", id);
+      alert("Erro: ID da consulta inválido");
+      return;
+    }
+    
     try {
-      const response = await fetch(`/consultas/${id}`);
-      const consulta = await response.json();
+      console.log("Iniciando edição da consulta ID:", id);
       
-      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Consulta';
-      document.getElementById('paciente_id').value = consulta.paciente_id;
-      document.getElementById('medico_id').value = consulta.medico_id;
-      document.getElementById('data_hora').value = consulta.data_hora;
-      document.getElementById('tipo_consulta').value = consulta.tipo_consulta;
-      document.getElementById('status').value = consulta.status;
-      
-      // Carregar todos os dados do select antes de selecionar o valor
+      // Carrega as opções para os selects
       await loadSelectOptions();
       
-      // Agora definir os valores após carregar as opções
-      document.getElementById('paciente_id').value = consulta.paciente_id;
-      document.getElementById('medico_id').value = consulta.medico_id;
+      // Carrega os dados da consulta
+      const response = await fetch(`/consultas/${id}`);
+      if (!response.ok) {
+        throw new Error('Erro ao carregar dados da consulta');
+      }
       
+      const consulta = await response.json();
+      console.log("Dados da consulta recebidos:", consulta);
+      
+      // Limpa o formulário primeiro
+      document.getElementById('consultaForm').reset();
+      
+      // Define o título do modal
+      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Consulta';
+      
+      // Armazena o ID da consulta no campo oculto
+      document.getElementById('consulta_id').value = id;
+      console.log("ID da consulta definido como:", id, "Valor atual:", document.getElementById('consulta_id').value);
+      
+      // Formata a data e hora para o campo datetime-local
+      let dataHoraFormatada = '';
+      try {
+        const dataHoraOriginal = consulta.data_hora;
+        let dataObj;
+        
+        if (dataHoraOriginal.includes('T')) {
+          // Já está no formato ISO
+          dataHoraFormatada = dataHoraOriginal.substring(0, 16); // Remove segundos e timezone
+        } else if (dataHoraOriginal.includes(' ')) {
+          // Formato 'YYYY-MM-DD HH:MM:SS'
+          const [dataParte, horaParte] = dataHoraOriginal.split(' ');
+          const [hora, minuto] = horaParte.split(':');
+          dataHoraFormatada = `${dataParte}T${hora}:${minuto}`;
+        } else {
+          // Tenta converter para o formato esperado
+          dataObj = new Date(dataHoraOriginal);
+          if (!isNaN(dataObj.getTime())) {
+            const ano = dataObj.getFullYear();
+            const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+            const dia = String(dataObj.getDate()).padStart(2, '0');
+            const hora = String(dataObj.getHours()).padStart(2, '0');
+            const minuto = String(dataObj.getMinutes()).padStart(2, '0');
+            dataHoraFormatada = `${ano}-${mes}-${dia}T${hora}:${minuto}`;
+          }
+        }
+        
+        console.log("Data e hora formatadas para exibição:", dataHoraFormatada);
+      } catch (e) {
+        console.error("Erro ao formatar data e hora para edição:", e);
+        // Tenta uma abordagem alternativa se falhar
+        dataHoraFormatada = consulta.data_hora.replace(' ', 'T').substring(0, 16);
+      }
+      
+      document.getElementById('data_hora').value = dataHoraFormatada;
+      
+      // Define o tipo de consulta
+      document.getElementById('tipo_consulta').value = consulta.tipo_consulta;
+      
+      // Define o status
+      document.getElementById('status').value = consulta.status;
+      
+      // Define os valores dos selects do paciente e médico
+      setTimeout(() => {
+        $('#paciente_id').val(consulta.paciente_id).trigger('change');
+        $('#medico_id').val(consulta.medico_id).trigger('change');
+        console.log("Valores dos selects definidos - Paciente:", consulta.paciente_id, "Médico:", consulta.medico_id);
+      }, 300);
+      
+      // Verificação final
+      setTimeout(() => {
+        const formValues = {
+          id: document.getElementById('consulta_id').value,
+          paciente: $('#paciente_id').val(),
+          medico: $('#medico_id').val(),
+          data_hora: document.getElementById('data_hora').value,
+          tipo: document.getElementById('tipo_consulta').value,
+          status: document.getElementById('status').value
+        };
+        console.log("Verificação final dos valores do formulário:", formValues);
+      }, 500);
+      
+      // Exibe o modal
       document.getElementById('consultaModal').style.display = 'block';
     } catch (error) {
       console.error('Erro ao carregar consulta:', error);
