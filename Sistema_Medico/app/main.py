@@ -14,6 +14,7 @@ from app.routes import (
 )
 from app.core.security import get_current_user_from_token
 from sqlalchemy.orm import Session
+from app.models import Usuario
 import os
 
 # Cria as tabelas no banco de dados
@@ -179,6 +180,56 @@ async def perfil(request: Request, current_user = Depends(get_current_user)):
             "user": current_user
         }
     )
+
+@app.put("/perfil/atualizar")
+async def atualizar_perfil(
+    nome: str, 
+    email: str, 
+    request: Request, 
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    try:
+        # Verificar se o email já está sendo usado por outro usuário
+        usuario_existente = db.query(Usuario).filter(Usuario.email == email, Usuario.id != current_user.id).first()
+        if usuario_existente:
+            raise HTTPException(status_code=400, detail="Email já está em uso")
+        
+        # Atualizar os dados do usuário
+        current_user.nome = nome
+        current_user.email = email
+        db.commit()
+        
+        return {"message": "Perfil atualizado com sucesso"}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao atualizar perfil: {str(e)}")
+
+@app.put("/perfil/senha")
+async def atualizar_senha(
+    senha_atual: str, 
+    nova_senha: str, 
+    request: Request, 
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    try:
+        from app.core.security import verify_password, get_password_hash
+        
+        # Verificar se a senha atual está correta
+        if not verify_password(senha_atual, current_user.senha):
+            raise HTTPException(status_code=400, detail="Senha atual incorreta")
+        
+        # Atualizar a senha
+        current_user.senha = get_password_hash(nova_senha)
+        db.commit()
+        
+        return {"message": "Senha atualizada com sucesso"}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao atualizar senha: {str(e)}")
 
 @app.get("/logout")
 async def logout():

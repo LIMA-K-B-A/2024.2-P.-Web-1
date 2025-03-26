@@ -410,8 +410,8 @@
       
       <div class="user-menu">
         <div class="user-info">
-          <p class="user-name">Administrador</p>
-          <p class="user-role">Admin</p>
+          <p class="user-name">{{ user.nome }}</p>
+          <p class="user-role">{{ user.tipo_usuario }}</p>
         </div>
         <button class="logout-button" onclick="logout()">
           <i class="fas fa-sign-out-alt"></i>
@@ -423,24 +423,50 @@
     <div class="profile-container">
       <aside class="profile-sidebar">
         <img src="/static/img/avatar.png" alt="Avatar do usuário" class="profile-avatar">
-        <h2 class="profile-name">Administrador</h2>
-        <p class="profile-email">admin@medhub.com</p>
+        <h2 class="profile-name">{{ user.nome }}</h2>
+        <p class="profile-email">{{ user.email }}</p>
         
         <div class="profile-stats">
           <div class="stat-item">
-            <p class="stat-value">12</p>
+            <p class="stat-value">
+              {% if user.tipo_usuario == 'medico' %}
+                {{ user.medico.consultas|length if user.medico else 0 }}
+              {% elif user.tipo_usuario == 'paciente' %}
+                {{ user.paciente.consultas|length if user.paciente else 0 }}
+              {% else %}
+                --
+              {% endif %}
+            </p>
             <p class="stat-label">Consultas</p>
           </div>
           <div class="stat-item">
-            <p class="stat-value">156</p>
-            <p class="stat-label">Pacientes</p>
+            {% if user.tipo_usuario == 'admin' %}
+            <p class="stat-value">--</p>
+            <p class="stat-label">Usuários</p>
+            {% elif user.tipo_usuario == 'medico' %}
+            <p class="stat-value">
+              {% if user.medico and user.medico.especialidade %}
+                <i class="fas fa-stethoscope"></i>
+              {% else %}
+                <i class="fas fa-user-md"></i>
+              {% endif %}
+            </p>
+            <p class="stat-label">
+              {% if user.medico %}{{ user.medico.especialidade }}{% else %}Médico{% endif %}
+            </p>
+            {% elif user.tipo_usuario == 'paciente' %}
+            <p class="stat-value">
+              <i class="fas fa-user"></i>
+            </p>
+            <p class="stat-label">Paciente</p>
+            {% endif %}
           </div>
         </div>
 
         <button class="btn btn-danger" onclick="deleteAccount()">
           <i class="fas fa-trash"></i>
           Excluir Conta
-          </button>
+        </button>
       </aside>
 
       <div class="profile-content">
@@ -453,13 +479,13 @@
           <form id="profile-form">
             <div class="form-group">
               <label for="nome">Nome</label>
-              <input type="text" id="nome" name="nome" value="Administrador" required>
-        </div>
+              <input type="text" id="nome" name="nome" value="{{ user.nome }}" required>
+            </div>
             
             <div class="form-group">
               <label for="email">Email</label>
-              <input type="email" id="email" name="email" value="admin@medhub.com" required>
-      </div>
+              <input type="email" id="email" name="email" value="{{ user.email }}" required>
+            </div>
             
             <div class="button-group">
               <button type="submit" class="btn btn-primary">
@@ -470,7 +496,7 @@
                 <i class="fas fa-undo"></i>
                 Cancelar
               </button>
-    </div>
+            </div>
           </form>
         </section>
 
@@ -484,7 +510,7 @@
             <div class="form-group">
               <label for="senha_atual">Senha Atual</label>
               <input type="password" id="senha_atual" name="senha_atual" required>
-      </div>
+            </div>
 
             <div class="form-group">
               <label for="nova_senha">Nova Senha</label>
@@ -494,7 +520,7 @@
             <div class="form-group">
               <label for="confirmar_senha">Confirmar Nova Senha</label>
               <input type="password" id="confirmar_senha" name="confirmar_senha" required>
-          </div>
+            </div>
             
             <div class="button-group">
               <button type="submit" class="btn btn-primary">
@@ -505,8 +531,8 @@
                 <i class="fas fa-undo"></i>
                 Cancelar
               </button>
-          </div>
-        </form>
+            </div>
+          </form>
         </section>
       </div>
     </div>
@@ -519,6 +545,8 @@
 
     function resetForm() {
       document.getElementById('profile-form').reset();
+      document.getElementById('nome').value = "{{ user.nome }}";
+      document.getElementById('email').value = "{{ user.email }}";
     }
 
     function resetPasswordForm() {
@@ -527,7 +555,6 @@
 
     function deleteAccount() {
       if (confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.')) {
-        // Implementar lógica de exclusão de conta
         window.location.href = '/logout';
       }
     }
@@ -551,13 +578,16 @@
         });
         
         if (response.ok) {
-          alert('Perfil atualizado com sucesso!');
+          const data = await response.json();
+          alert(data.message || 'Perfil atualizado com sucesso!');
+          window.location.reload();
         } else {
           const data = await response.json();
           alert(data.detail || 'Erro ao atualizar perfil');
         }
       } catch (error) {
         alert('Erro ao conectar com o servidor');
+        console.error(error);
       }
     });
 
@@ -586,7 +616,8 @@
         });
 
         if (response.ok) {
-          alert('Senha alterada com sucesso!');
+          const data = await response.json();
+          alert(data.message || 'Senha alterada com sucesso!');
           resetPasswordForm();
         } else {
           const data = await response.json();
@@ -594,6 +625,7 @@
         }
       } catch (error) {
         alert('Erro ao conectar com o servidor');
+        console.error(error);
       }
     });
   </script>
