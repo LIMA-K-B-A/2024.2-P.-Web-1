@@ -24,7 +24,9 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="MedHub",
     description="Sistema de Gerenciamento de Consultas Médicas",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
 )
 
 # Configuração de templates e arquivos estáticos
@@ -37,6 +39,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # Configuração de arquivos estáticos
@@ -53,7 +56,9 @@ public_routes = [
     "/favicon.ico",
     "/static/img/favicon.svg",
     "/static/css/style.css",
-    "/static/js/main.js"
+    "/static/js/main.js",
+    "/docs",
+    "/redoc"
 ]
 
 # Middleware de autenticação
