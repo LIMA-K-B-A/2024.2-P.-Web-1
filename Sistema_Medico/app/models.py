@@ -23,6 +23,7 @@ class Usuario(Base):
     email = Column(String(100), unique=True, nullable=False)
     senha = Column(String(255), nullable=False)
     tipo_usuario = Column(SQLEnum(TipoUsuario), nullable=False)
+    foto_perfil = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

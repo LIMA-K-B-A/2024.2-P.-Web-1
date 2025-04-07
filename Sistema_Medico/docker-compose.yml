@@ -3,51 +3,28 @@ version: '3.8'
 services:
   web:
     build: .
-    volumes:
-      - .:/app
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_PORT=5432
-      - POSTGRES_PASSWORD=1301
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=medhub
-      - POSTGRES_HOST=db
-      - HOST=0.0.0.0
-      - PORT=8000
-      - PYTHONUNBUFFERED=1
-      - LOG_LEVEL=debug
+    volumes:
+      - .:/app
+      - ./app/static/uploads:/app/app/static/uploads
+    env_file:
+      - .env
     depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - medhub-network
-    restart: unless-stopped
-    tty: true
-    stdin_open: true
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:1301@db:5432/medhub
 
   db:
-    image: postgres:15
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    image: postgres:13
     environment:
-      - POSTGRES_PASSWORD=1301
       - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1301
       - POSTGRES_DB=medhub
     ports:
       - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - medhub-network
-    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
   postgres_data:
-
-networks:
-  medhub-network:
-    driver: bridge

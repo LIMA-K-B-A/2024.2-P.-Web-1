@@ -35,6 +35,7 @@
     border: 4px solid var(--primary-color-light);
     box-shadow: var(--shadow-md);
     transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+    cursor: pointer;
   }
   
   .profile-img-container:hover {
@@ -51,6 +52,33 @@
 
   .profile-avatar:hover {
     transform: scale(1.05);
+  }
+
+  .upload-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .profile-img-container:hover .upload-overlay {
+    opacity: 1;
+  }
+
+  .upload-icon {
+    color: white;
+    font-size: 2rem;
+  }
+
+  #file-input {
+    display: none;
   }
 
   .profile-name {
@@ -177,8 +205,12 @@
 {% block content %}
 <div class="profile-container">
   <aside class="profile-sidebar">
-    <div class="profile-img-container">
-      <img src="/static/img/avatar.png" alt="Avatar do usuário" class="profile-avatar">
+    <div class="profile-img-container" onclick="document.getElementById('file-input').click()">
+      <img src="{{ user.foto_perfil if user.foto_perfil else '/static/img/avatar.png' }}" alt="Avatar do usuário" class="profile-avatar">
+      <div class="upload-overlay">
+        <i class="fas fa-camera upload-icon"></i>
+      </div>
+      <input type="file" id="file-input" accept="image/*" onchange="uploadFoto(this)">
     </div>
     <h2 class="profile-name">{{ user.nome }}</h2>
     <p class="profile-email">{{ user.email }}</p>
@@ -463,5 +495,32 @@
       submitBtn.disabled = false;
     }
   });
+
+  async function uploadFoto(input) {
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append('foto', file);
+
+      try {
+        const response = await fetch('/perfil/foto', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          document.querySelector('.profile-avatar').src = data.foto_url;
+          showNotification('Foto atualizada com sucesso!', 'success');
+        } else {
+          const data = await response.json();
+          showNotification(data.detail || 'Erro ao atualizar foto', 'error');
+        }
+      } catch (error) {
+        showNotification('Erro ao fazer upload da foto', 'error');
+        console.error(error);
+      }
+    }
+  }
 </script>
 {% endblock %}

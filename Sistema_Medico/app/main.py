@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException, status, Depends
+from fastapi import FastAPI, Request, HTTPException, status, Depends, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -16,6 +16,9 @@ from app.core.security import get_current_user_from_token
 from sqlalchemy.orm import Session
 from app.models import Usuario
 import os
+import shutil
+from datetime import datetime
+import uuid
 
 # Cria as tabelas no banco de dados
 Base.metadata.create_all(bind=engine)
@@ -257,3 +260,36 @@ async def logout():
     response = RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
     response.delete_cookie("access_token")
     return response
+
+# Cria o diretório para armazenar as fotos se não existir
+UPLOAD_DIR = "app/static/uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+@app.post("/perfil/foto")
+async def upload_foto_perfil(
+    foto: UploadFile = File(...),
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        # Verifica se é uma imagem
+        if not foto.content_type.startswith('image/'):
+            raise HTTPException(status_code=400, detail="Arquivo deve ser uma imagem")
+
+        # Gera um nome único para o arquivo
+        file_extension = os.path.splitext(foto.filename)[1]
+        unique_filename = f"{uuid.uuid4()}{file_extension}"
+        file_path = os.path.join(UPLOAD_DIR, unique_filename)
+
+        # Salva o arquivo
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(foto.file, buffer)
+
+        # Atualiza o caminho da foto no banco de dados
+        foto_url = f"/static/uploads/{unique_filename}"
+        current_user.foto_perfil = foto_url
+        db.commit()
+
+        return {"foto_url": foto_url}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao fazer upload da foto: {str(e)}")
