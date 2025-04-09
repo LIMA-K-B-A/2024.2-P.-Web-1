@@ -5,16 +5,17 @@ from app.models import Paciente, Usuario, TipoUsuario
 from pydantic import BaseModel
 from datetime import date
 from typing import List
+from app.core.security import get_password_hash
 
 router = APIRouter()
 
 class PacienteCreate(BaseModel):
     nome: str
     email: str
-    senha: str
     cpf: str
     data_nascimento: date
     telefone: str
+    endereco: str = ""
 
 class PacienteList(BaseModel):
     id: int
@@ -23,6 +24,7 @@ class PacienteList(BaseModel):
     cpf: str
     data_nascimento: date
     telefone: str
+    endereco: str = ""
 
     class Config:
         from_attributes = True
@@ -47,7 +49,8 @@ async def listar_pacientes(db: Session = Depends(get_db)):
             email=paciente.usuario.email,
             cpf=paciente.cpf,
             data_nascimento=paciente.data_nascimento,
-            telefone=paciente.telefone
+            telefone=paciente.telefone,
+            endereco=paciente.endereco if hasattr(paciente, 'endereco') else ""
         )
         pacientes_list.append(paciente_list)
     return pacientes_list
@@ -67,11 +70,12 @@ async def criar_paciente(
         if db.query(Paciente).filter(Paciente.cpf == paciente.cpf).first():
             raise HTTPException(status_code=400, detail="CPF já está em uso")
 
-        # Cria o usuário primeiro
+        # Cria o usuário primeiro com uma senha padrão
+        senha_padrao = "paciente123"  # Senha padrão para pacientes
         usuario = Usuario(
             nome=paciente.nome,
             email=paciente.email,
-            senha=paciente.senha,
+            senha=get_password_hash(senha_padrao),
             tipo_usuario=TipoUsuario.PACIENTE
         )
         db.add(usuario)
@@ -82,7 +86,8 @@ async def criar_paciente(
             usuario_id=usuario.id,
             cpf=paciente.cpf,
             data_nascimento=paciente.data_nascimento,
-            telefone=paciente.telefone
+            telefone=paciente.telefone,
+            endereco=paciente.endereco
         )
         db.add(paciente_db)
         db.commit()
@@ -96,7 +101,8 @@ async def criar_paciente(
             "email": usuario.email,
             "cpf": paciente_db.cpf,
             "data_nascimento": paciente_db.data_nascimento,
-            "telefone": paciente_db.telefone
+            "telefone": paciente_db.telefone,
+            "endereco": paciente_db.endereco
         }
 
     except Exception as e:
