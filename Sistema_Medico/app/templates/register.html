@@ -365,7 +365,7 @@
                 </div>
             </div>
             
-            <input type="hidden" name="tipo" value="admin">
+            <input type="hidden" name="tipo_usuario" value="admin">
             
             <button type="submit" class="register-button">
                 <i class="fas fa-user-plus"></i> Criar Conta
@@ -406,7 +406,7 @@
                     errorMessage.style.display = 'block';
                 } else {
                     // Se não for JSON, é um redirecionamento bem-sucedido
-                    window.location.href = '/home';
+                    window.location.href = response.url || '/login';
                 }
             } catch (error) {
                 console.error('Erro:', error);

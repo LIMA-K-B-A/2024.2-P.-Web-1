@@ -25,11 +25,19 @@ async def register(
     nome: str = Form(...),
     email: str = Form(...),
     senha: str = Form(...),
+    confirmar_senha: str = Form(...),
     tipo_usuario: str = Form(...),
     db: Session = Depends(get_db)
 ):
     """Rota para registro de usuário."""
     try:
+        # Verifica se as senhas coincidem
+        if senha != confirmar_senha:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={"detail": "As senhas não coincidem"}
+            )
+
         # Verifica se o email já existe
         db_usuario = db.query(Usuario).filter(Usuario.email == email).first()
         if db_usuario:
@@ -54,18 +62,23 @@ async def register(
         db.commit()
         db.refresh(novo_usuario)
 
-        # Retorna sucesso
-        return JSONResponse(
-            status_code=status.HTTP_201_CREATED,
-            content={"detail": "Usuário cadastrado com sucesso"}
+        # Redireciona para a página de login com mensagem de sucesso
+        return RedirectResponse(
+            url="/login?message=Conta criada com sucesso! Faça login para continuar.",
+            status_code=status.HTTP_303_SEE_OTHER
         )
 
     except Exception as e:
         db.rollback()
         print(f"Erro no registro: {str(e)}")
+        error_message = "Erro ao cadastrar usuário. "
+        if "unique constraint" in str(e).lower():
+            error_message += "Email já cadastrado."
+        else:
+            error_message += "Tente novamente."
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"detail": "Erro ao cadastrar usuário. Tente novamente."}
+            content={"detail": error_message}
         )
 
 @router.get("/users/{user_id}", response_model=UsuarioOut)

@@ -321,6 +321,16 @@
         padding: 0.75rem;
       }
     }
+
+    .success-message {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      text-align: center;
+      animation: fadeIn 0.5s ease-in-out;
+    }
   </style>
 </head>
 
@@ -332,7 +342,8 @@
       <p>Sistema de Gestão Médica</p>
     </div>
 
-    <div class="error-message" id="error-message"></div>
+    <div id="success-message" class="success-message" style="display: none;"></div>
+    <div id="error-message" class="error-message" style="display: none;"></div>
     
     <form class="login-form" method="POST">
       <div class="form-group">
@@ -362,6 +373,19 @@
   </div>
 
   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Verifica se há uma mensagem de sucesso na URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const successMessage = urlParams.get('message');
+      if (successMessage) {
+        const successElement = document.getElementById('success-message');
+        successElement.textContent = successMessage;
+        successElement.style.display = 'block';
+        // Remove a mensagem da URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    });
+
     document.querySelector('.login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         
