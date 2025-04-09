@@ -14,7 +14,8 @@ from app.routes import (
 )
 from app.core.security import get_current_user_from_token
 from sqlalchemy.orm import Session
-from app.models import Usuario
+from app.models import Usuario, Medico, Paciente, Consulta
+from sqlalchemy.sql import func
 import os
 import shutil
 from datetime import datetime
@@ -139,13 +140,58 @@ async def get_current_user(request: Request, db: Session = Depends(get_db)):
 
 # Rotas protegidas
 @app.get("/home", response_class=HTMLResponse)
-async def home(request: Request, current_user = Depends(get_current_user)):
+async def home(request: Request, current_user = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Obter total de médicos
+    total_medicos = db.query(Medico).count()
+    
+    # Obter total de pacientes
+    total_pacientes = db.query(Paciente).count()
+    
+    # Obter consultas de hoje
+    hoje = datetime.now().date()
+    consultas_hoje = db.query(Consulta).filter(
+        func.date(Consulta.data_hora) == hoje
+    ).count()
+    
+    # Obter atividades recentes (últimas 5 consultas)
+    atividades_recentes = []
+    consultas_recentes = db.query(Consulta).order_by(Consulta.created_at.desc()).limit(5).all()
+    
+    for consulta in consultas_recentes:
+        # Determinar o ícone com base no status
+        icone = "fa-calendar-check"
+        if consulta.status == "cancelada":
+            icone = "fa-calendar-times"
+        elif consulta.status == "realizada":
+            icone = "fa-check-circle"
+        
+        # Calcular tempo relativo
+        tempo = "agora"
+        if consulta.created_at:
+            diff = datetime.now(consulta.created_at.tzinfo) - consulta.created_at
+            if diff.days > 0:
+                tempo = f"há {diff.days} dia(s)"
+            elif diff.seconds > 3600:
+                tempo = f"há {diff.seconds // 3600} hora(s)"
+            elif diff.seconds > 60:
+                tempo = f"há {diff.seconds // 60} minuto(s)"
+        
+        atividades_recentes.append({
+            "titulo": f"Consulta de {consulta.paciente.usuario.nome} com Dr. {consulta.medico.usuario.nome}",
+            "tempo": tempo,
+            "icone": icone
+        })
+    
     return templates.TemplateResponse(
         "home.html",
         {
             "request": request,
             "title": "MedHub - Dashboard",
-            "user": current_user
+            "user": current_user,
+            "total_medicos": total_medicos,
+            "total_pacientes": total_pacientes,
+            "consultas_hoje": consultas_hoje,
+            "atividades_recentes": atividades_recentes
         }
     )
 

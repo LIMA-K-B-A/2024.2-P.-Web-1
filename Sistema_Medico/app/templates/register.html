@@ -29,18 +29,66 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            overflow-y: auto;
+            position: relative;
+            padding: 1rem;
+        }
+        
+        /* Efeito de partículas no fundo */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.2) 1%, transparent 1%),
+                radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.2) 1%, transparent 1%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 1%, transparent 1%),
+                radial-gradient(circle at 10% 90%, rgba(255, 255, 255, 0.15) 1%, transparent 1%),
+                radial-gradient(circle at 90% 10%, rgba(255, 255, 255, 0.15) 1%, transparent 1%);
+            background-size: 100px 100px, 150px 150px, 200px 200px, 120px 120px, 180px 180px;
+            background-position: 0 0, 50px 50px, 100px 100px, 150px 150px, 200px 200px;
+            animation: backgroundMove 30s linear infinite;
+            z-index: 0;
+        }
+        
+        @keyframes backgroundMove {
+            0% {
+                background-position: 0 0, 50px 50px, 100px 100px, 150px 150px, 200px 200px;
+            }
+            100% {
+                background-position: 100px 100px, 150px 150px, 200px 200px, 250px 250px, 300px 300px;
+            }
         }
         
         .register-container {
-            background-color: white;
-            padding: 2.5rem;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 2rem;
             border-radius: 16px;
-            box-shadow: var(--shadow-md);
-            width: 100%;
-            max-width: 480px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
             position: relative;
             overflow: hidden;
-            margin: 2rem;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.5s ease-out;
+            margin: 0 auto;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .register-container::before {
@@ -55,19 +103,32 @@
         
         .register-header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
         }
 
         .logo {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 1rem;
+            width: 60px;
+            height: 60px;
+            margin-bottom: 0.75rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
         
         .register-header h1 {
             color: var(--primary-color);
             margin: 0;
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             letter-spacing: -0.5px;
         }
@@ -75,7 +136,7 @@
         .register-header p {
             color: var(--text-color);
             margin-top: 0.5rem;
-            font-size: 1.1rem;
+            font-size: 1rem;
             opacity: 0.8;
         }
         
@@ -89,28 +150,36 @@
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            position: relative;
         }
         
         .form-group label {
             color: var(--text-color);
             font-weight: 500;
             font-size: 0.95rem;
+            transition: all 0.3s ease;
         }
         
-        .form-group input, .form-group select {
-            padding: 0.875rem;
+        .form-group input {
+            padding: 0.875rem 0.875rem 0.875rem 2.75rem;
             border: 2px solid var(--border-color);
             border-radius: 8px;
             font-size: 1rem;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.9);
             width: 100%;
             box-sizing: border-box;
         }
         
-        .form-group input:focus, .form-group select:focus {
+        .form-group input:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px var(--primary-color-light);
+            transform: translateY(-2px);
+        }
+        
+        .form-group input:focus + label {
+            color: var(--primary-color);
         }
         
         .register-button {
@@ -122,17 +191,35 @@
             font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             margin-top: 0.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .register-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.5s ease;
+        }
+        
+        .register-button:hover::before {
+            left: 100%;
         }
         
         .register-button:hover {
             background-color: var(--primary-color-dark);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .register-button:active {
@@ -156,7 +243,23 @@
             color: var(--primary-color);
             text-decoration: none;
             font-weight: 500;
-            transition: color 0.2s ease;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .login-link a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+        
+        .login-link a:hover::after {
+            width: 100%;
         }
         
         .login-link a:hover {
@@ -164,7 +267,7 @@
         }
         
         .error-message {
-            background-color: #FDF3F2;
+            background-color: rgba(253, 243, 242, 0.9);
             color: var(--error-color);
             text-align: center;
             margin-bottom: 1.25rem;
@@ -172,12 +275,18 @@
             border-radius: 8px;
             font-size: 0.95rem;
             display: none;
-            border: 1px solid #FADBD8;
+            border: 1px solid rgba(250, 219, 216, 0.8);
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
 
         .input-icon {
             position: relative;
-            width: 100%;
         }
 
         .input-icon i {
@@ -186,30 +295,29 @@
             top: 50%;
             transform: translateY(-50%);
             color: #95A5A6;
+            transition: all 0.3s ease;
         }
-
-        .input-icon input, .input-icon select {
-            padding-left: 2.75rem;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+        
+        .form-group input:focus + .input-icon i {
+            color: var(--primary-color);
         }
 
         @media (max-width: 480px) {
             .register-container {
-                margin: 1rem;
                 padding: 1.5rem;
+                width: 95%;
             }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
+            
             .register-header h1 {
-                font-size: 2rem;
+                font-size: 1.75rem;
+            }
+            
+            .form-group input {
+                padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+            }
+            
+            .register-button {
+                padding: 0.75rem;
             }
         }
     </style>
@@ -225,35 +333,39 @@
         <div class="error-message" id="error-message"></div>
         
         <form class="register-form" method="POST">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="nome">Nome</label>
-                    <div class="input-icon">
-                        <i class="fas fa-user"></i>
-                        <input type="text" id="nome" name="nome" required placeholder="Seu nome completo">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <div class="input-icon">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="email" name="email" required placeholder="Seu email">
-                    </div>
+            <div class="form-group">
+                <label for="nome">Nome</label>
+                <div class="input-icon">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="nome" name="nome" required placeholder="Seu nome completo">
                 </div>
             </div>
             
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="senha">Senha</label>
-                    <div class="input-icon">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="senha" name="senha" required placeholder="Sua senha">
-                    </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <div class="input-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" required placeholder="Seu email">
                 </div>
-
-                <input type="hidden" id="tipo_usuario" name="tipo_usuario" value="admin">
             </div>
+            
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <div class="input-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="senha" name="senha" required placeholder="Sua senha">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmar_senha">Confirmar Senha</label>
+                <div class="input-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="confirmar_senha" name="confirmar_senha" required placeholder="Confirme sua senha">
+                </div>
+            </div>
+            
+            <input type="hidden" name="tipo" value="admin">
             
             <button type="submit" class="register-button">
                 <i class="fas fa-user-plus"></i> Criar Conta
@@ -271,37 +383,35 @@
             
             const formData = new FormData(e.target);
             
-            // Log dos dados para debug
-            console.log('Dados do formulário:', {
-                nome: formData.get('nome'),
-                email: formData.get('email'),
-                senha: formData.get('senha'),
-                tipo_usuario: formData.get('tipo_usuario')
-            });
+            if (formData.get('senha') !== formData.get('confirmar_senha')) {
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = 'As senhas não coincidem';
+                errorMessage.style.display = 'block';
+                return;
+            }
             
             try {
                 const response = await fetch('/cadastro', {
                     method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                    body: formData
                 });
                 
-                const data = await response.json();
+                const contentType = response.headers.get('content-type');
                 
-                if (response.ok) {
-                    // Se o cadastro for bem sucedido, redireciona para a página de login
-                    window.location.href = '/login';
-                } else {
+                if (contentType && contentType.includes('application/json')) {
+                    // Se a resposta for JSON, provavelmente é um erro
+                    const data = await response.json();
                     const errorMessage = document.getElementById('error-message');
-                    errorMessage.textContent = data.detail || 'Erro ao fazer cadastro. Tente novamente.';
+                    errorMessage.textContent = data.detail || 'Erro ao criar conta';
                     errorMessage.style.display = 'block';
+                } else {
+                    // Se não for JSON, é um redirecionamento bem-sucedido
+                    window.location.href = '/home';
                 }
             } catch (error) {
                 console.error('Erro:', error);
                 const errorMessage = document.getElementById('error-message');
-                errorMessage.textContent = 'Erro ao fazer cadastro. Tente novamente.';
+                errorMessage.textContent = 'Erro ao conectar com o servidor';
                 errorMessage.style.display = 'block';
             }
         });

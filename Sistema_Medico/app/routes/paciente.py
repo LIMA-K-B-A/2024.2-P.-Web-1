@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Paciente, Usuario, TipoUsuario
 from pydantic import BaseModel
-from datetime import date
-from typing import List
+from datetime import date, datetime
+from typing import List, Optional
 from app.core.security import get_password_hash
 
 router = APIRouter()
@@ -13,9 +13,9 @@ class PacienteCreate(BaseModel):
     nome: str
     email: str
     cpf: str
-    data_nascimento: date
+    data_nascimento: str
     telefone: str
-    endereco: str = ""
+    endereco: Optional[str] = None
 
 class PacienteList(BaseModel):
     id: int
@@ -24,7 +24,7 @@ class PacienteList(BaseModel):
     cpf: str
     data_nascimento: date
     telefone: str
-    endereco: str = ""
+    endereco: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -48,9 +48,9 @@ async def listar_pacientes(db: Session = Depends(get_db)):
             nome=paciente.usuario.nome,
             email=paciente.usuario.email,
             cpf=paciente.cpf,
-            data_nascimento=paciente.data_nascimento,
+            data_nascimento=paciente.data_nascimento.date(),
             telefone=paciente.telefone,
-            endereco=paciente.endereco if hasattr(paciente, 'endereco') else ""
+            endereco=paciente.endereco
         )
         pacientes_list.append(paciente_list)
     return pacientes_list
@@ -70,6 +70,12 @@ async def criar_paciente(
         if db.query(Paciente).filter(Paciente.cpf == paciente.cpf).first():
             raise HTTPException(status_code=400, detail="CPF já está em uso")
 
+        # Converte a string de data para objeto datetime
+        try:
+            data_nascimento = datetime.strptime(paciente.data_nascimento, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Formato de data inválido. Use YYYY-MM-DD")
+
         # Cria o usuário primeiro com uma senha padrão
         senha_padrao = "paciente123"  # Senha padrão para pacientes
         usuario = Usuario(
@@ -85,9 +91,9 @@ async def criar_paciente(
         paciente_db = Paciente(
             usuario_id=usuario.id,
             cpf=paciente.cpf,
-            data_nascimento=paciente.data_nascimento,
+            data_nascimento=data_nascimento,
             telefone=paciente.telefone,
-            endereco=paciente.endereco
+            endereco=paciente.endereco or ""
         )
         db.add(paciente_db)
         db.commit()
@@ -104,19 +110,12 @@ async def criar_paciente(
             "telefone": paciente_db.telefone,
             "endereco": paciente_db.endereco
         }
-
+    except HTTPException as e:
+        db.rollback()
+        raise e
     except Exception as e:
         db.rollback()
-        # Converte o erro do PostgreSQL para uma mensagem mais amigável
-        error_msg = str(e)
-        if "violates not-null constraint" in error_msg:
-            if "nome" in error_msg:
-                error_msg = "O nome é obrigatório"
-            elif "email" in error_msg:
-                error_msg = "O email é obrigatório"
-            elif "cpf" in error_msg:
-                error_msg = "O CPF é obrigatório"
-        raise HTTPException(status_code=400, detail=error_msg)
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/{paciente_id}")
 async def obter_paciente(paciente_id: int, db: Session = Depends(get_db)):

@@ -187,40 +187,17 @@
     const pacienteId = formData.get('paciente_id');
     const isEditing = pacienteId && pacienteId !== '';
     
-    // Obtém a data de nascimento do formulário
-    let dataNascimento = formData.get('data_nascimento');
-    
-    // Garante que a data está no formato correto e ajusta o timezone
-    if (dataNascimento) {
-      try {
-        // Separa os componentes da data
-        const [ano, mes, dia] = dataNascimento.split('-').map(num => parseInt(num, 10));
-        
-        // Cria uma data com o timezone local e ajusta para meio-dia para evitar problemas de timezone
-        const data = new Date(ano, mes - 1, dia, 12, 0, 0);
-        
-        // Formata a data no formato YYYY-MM-DD
-        const anoFormatado = data.getFullYear();
-        const mesFormatado = String(data.getMonth() + 1).padStart(2, '0');
-        const diaFormatado = String(data.getDate()).padStart(2, '0');
-        
-        dataNascimento = `${anoFormatado}-${mesFormatado}-${diaFormatado}`;
-        console.log("Data formatada para envio:", dataNascimento);
-      } catch (e) {
-        console.error("Erro ao formatar data:", e);
-      }
-    }
+    // Obtém a data de nascimento do formulário e formata para YYYY-MM-DD
+    const dataNascimento = formData.get('data_nascimento');
     
     const data = {
       nome: formData.get('nome'),
       email: formData.get('email'),
-      cpf: formData.get('cpf'),
+      cpf: formData.get('cpf').replace(/\D/g, ''), // Remove caracteres não numéricos do CPF
       data_nascimento: dataNascimento,
-      telefone: formData.get('telefone'),
-      endereco: formData.get('endereco')
+      telefone: formData.get('telefone').replace(/\D/g, ''), // Remove caracteres não numéricos do telefone
+      endereco: formData.get('endereco') || ''
     };
-    
-    console.log("Dados a serem enviados:", data);
     
     try {
       let url = '/pacientes';
